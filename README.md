@@ -10,4 +10,4 @@
 
 # 通过WebSocket 在Web界面上显示
 
-## 数据
+## 支持 MYSQL 和 HBASE
