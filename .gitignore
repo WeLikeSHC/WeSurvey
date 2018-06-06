@@ -1,0 +1,13 @@
+# Created by .ignore support plugin (hsz.mobi)
+venv
+.idea
+.gitignore
+*.xml
+*.ini
+*.pyc
+*.md
+*.pdf
+*.toc
+*.seg
+migrations
+
