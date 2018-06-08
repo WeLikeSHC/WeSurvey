@@ -4,7 +4,7 @@ import os
 import ConfigParser
 
 
-config_file = "./mysql.ini"
+config_file = "./system.ini"
 
 if not os.path.exists(config_file):
     raise Exception("config file not find!")
