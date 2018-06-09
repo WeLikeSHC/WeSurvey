@@ -42,7 +42,7 @@ class CreateConnection(object):
         info = dict()
         info["id"] = '3'
         info["entry_time"] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        info["entry_data"] = random.random()
+        info["entry_data"] = random.uniform(-10, 50)
         info["info"] = "null"
         info['type'] = 'temp'
         info['name'] = 'month'

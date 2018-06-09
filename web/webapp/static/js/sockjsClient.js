@@ -50,15 +50,18 @@ sock.onmessage = function (e) {
                 }
             },
             title: {
-                text: '动态模拟实时数据'
+                text: '物联网采集结点数据显示曲线图'
             },
             xAxis: {
                 type: 'datetime',
-                tickPixelInterval: 150
+                tickPixelInterval: 150,
+                title: {
+                    text: "时间"
+                }
             },
             yAxis: {
                 title: {
-                    text: null
+                    text: "温度"
                 }
             },
             tooltip: {
@@ -72,7 +75,7 @@ sock.onmessage = function (e) {
                 enabled: false
             },
             series: [{
-                name: 'Random data',
+                name: '实时温度',
                 data: (function () {
                     var data = [], i;
                     for (i = 0; i < parse_info.length; i += 1) {
