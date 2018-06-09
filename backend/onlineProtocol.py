@@ -15,7 +15,8 @@ class OnlineProtocol(object):
     def __init__(self):
         self.online_protocol = dict()
         self.cache = dict()  # 每个传感器的数据
-        self.length = 5
+        self.length = 20
+        self.observe = dict()
 
     def get_online_protocol(self, div_name):
 
@@ -41,6 +42,7 @@ class OnlineProtocol(object):
         # 添加新设备实例->到在线设备列表里 参数为实例和host
         self.online_protocol[div_name] = host
         self.cache[div_name] = list()
+        self.observe[div_name] = list()
         print "Add " + div_name + " after, the current equipment is " + str(self.online_protocol)
         print '\n'
 
@@ -50,6 +52,7 @@ class OnlineProtocol(object):
         if self.online_protocol.get(div_name):
             print "You want to delete " + div_name
             del self.cache[div_name]
+            del self.observe[div_name]
             del self.online_protocol[div_name]
         else:
             print "Not Found the div you want to delete!"

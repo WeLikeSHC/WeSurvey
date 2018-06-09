@@ -12,10 +12,10 @@ class StateRpc(xmlrpc.XMLRPC):
     # 当前在线的protocol实例的名称列表
     def xmlrpc_get_online_protocol(self):
 
-        temp = list()
-        for key in online.cache.keys():
-            temp.append(online.cache.get(key)[0].get('name'))
-        return online.cache
+        return [key for key in online.cache.keys() if key.startswith("sensor")]
+
+    def xmlrpc_get_online_sock(self):
+        return [key for key in online.cache.keys() if key.startswith("sockjs")]
 
 
 Rpc = StateRpc()

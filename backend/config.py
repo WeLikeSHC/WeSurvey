@@ -26,6 +26,7 @@ class Config:
         self. cp_min = cf.get('cp_min', 'cp_min')
         self.max_logfile = cf.get('max_logfile', 'max_logfile')
         self.host = cf.get('host', 'host')
+        self.ui_port = cf.get('ui_port', 'port')
 
 
 config = Config()

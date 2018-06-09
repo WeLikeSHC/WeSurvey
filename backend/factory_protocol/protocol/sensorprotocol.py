@@ -14,7 +14,7 @@ class SensorProtocol(Protocol):
 
     def connectionMade(self):
         global num
-        self.name = str(num + 1)
+        self.name = 'sensor' + str(num + 1)
         num += 1
         print 'Sensor Client {} Connection '.format(self.name)
         self.factory.OnlineProtocol.add_client(self.name, self)
@@ -32,5 +32,8 @@ class SensorProtocol(Protocol):
             temp = json.loads(data)
             self.factory.OnlineProtocol.cache.get(self.name).append(temp)
             db.execute_insert('sensor', temp.keys(), [temp[key] for key in temp.keys()])
+            for observe in self.factory.OnlineProtocol.observe.get(self.name):  # 观察者模式　发送给所有关注该结点的sockjs
+                observe.transport.write(json.dumps(temp))
         except Exception as e:
+            print 'sensor'
             print e
