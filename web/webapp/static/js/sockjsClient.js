@@ -6,7 +6,11 @@
 var host = document.getElementById("backend").value;
 console.log(host, name);
 
+type_list = {'temp': '温度', 'mois': '湿度'};
+
 var sock = new SockJS("http://" + host + "/show_data");
+
+var number = 0;
 
 Highcharts.setOptions({
     global: {
@@ -33,9 +37,34 @@ sock.onopen = function () {
     }
 };
 
+function insertTable(tbody_id, info_list) {
+    var node_table = document.getElementById(tbody_id);
+    if (node_table) {
+        /*
+        *               <th>结点ID</th>
+                        <th>结点名称</th>
+                        <th>结点类型</th>
+                        <th>结点数据</th>
+                        <th>测量时间</th>
+        * */
+        var trNode = node_table.insertRow();
+
+        var list = {0: "id", 1: "name", 2: "type", 3: "entry_data", 4: "entry_time"};
+        for (var i = 0; i < 5; i++) {
+            var tdNode = trNode.insertCell();
+            tdNode.innerText = info_list[list[i]];
+            tdNode.id = "td" + number;
+            number += 1;
+            // document.getElementById(tdNode.id).scrollIntoView(true);
+            node_table.scrollTop = node_table.scrollHeight;
+        }
+        node_table.appendChild(trNode);
+    }
+}
 
 sock.onmessage = function (e) {
     var parse_info = JSON.parse(e.data);
+
     if (parse_info instanceof Array) {
         chart = Highcharts.chart('container', {
             chart: {
@@ -50,7 +79,7 @@ sock.onmessage = function (e) {
                 }
             },
             title: {
-                text: '物联网采集结点数据显示曲线图'
+                text: '物联网采集结点: ' + parse_info[0]['name'] + ' 数据显示曲线图 类型 (' + type_list[parse_info[0]['type']] + ')'
             },
             xAxis: {
                 type: 'datetime',
@@ -61,7 +90,7 @@ sock.onmessage = function (e) {
             },
             yAxis: {
                 title: {
-                    text: "温度"
+                    text: type_list[parse_info[0]['type']]
                 }
             },
             tooltip: {
@@ -75,7 +104,7 @@ sock.onmessage = function (e) {
                 enabled: false
             },
             series: [{
-                name: '实时温度',
+                name: '实时' + type_list[parse_info[0]['type']],
                 data: (function () {
                     var data = [], i;
                     for (i = 0; i < parse_info.length; i += 1) {
@@ -88,11 +117,14 @@ sock.onmessage = function (e) {
                 }())
             }]
         });
+
+        for(var j=0;j<parse_info.length;j++)
+            insertTable('tbody_id', parse_info[j]);
     }
     else {
-        console.log(parse_info["entry_data"])
         chart.series[0].addPoint([new Date(parse_info['entry_time']).getTime(), parse_info["entry_data"]], true, true);
         activeLastPointToolip(chart);
+        insertTable('tbody_id', parse_info);
 
     }
 };

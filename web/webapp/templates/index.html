@@ -1,9 +1,235 @@
-{% extends "base.html" %}
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title> We Survey </title>
+    <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+    <script src="/static/js/jquery-1.11.0.min.js"></script>
+    <script src="/static/js/highcharts.js"></script>
+    <link href="/static/css/style.css" rel="stylesheet" type="text/css" media="all"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="application/x-javascript"> addEventListener("load", function () {
+        setTimeout(hideURLbar, 0);
+    }, false);
 
-{% block content %}
+    function hideURLbar() {
+        window.scrollTo(0, 1);
+    } </script>
+    <!-- start-smoth-scrolling -->
+    <script type="text/javascript" src="/static/js/move-top.js"></script>
+    <script type="text/javascript" src="/static/js/easing.js"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $(".scroll").click(function (event) {
+                event.preventDefault();
+                $('html,body').animate({scrollTop: $(this.hash).offset().top}, 1000);
+            });
+        });
+    </script>
+    <link href="/static/css/jquery.countdown.css" rel="stylesheet" type="text/css" media="all"/>
+    <script src="/static/js/jquery.countdown.js"></script>
+    <script src="/static/js/script.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
 
-{% for info in info_list %}
-    <li><a href="{{url_for('auth.show_info', key=info)}}">结点 {{info}}</a></li>
-{% endfor %}
+        table {
+            /*设置相邻单元格的边框间的距离*/
+            border-spacing: 0;
+            /*表格设置合并边框模型*/
+            border-collapse: collapse;
+        }
 
-{% endblock %}
+        /*关键设置 tbody出现滚动条*/
+        table tbody {
+            display: block;
+            height: 250px;
+            overflow-y: scroll;
+        }
+
+        table thead,
+        tbody tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        /*关键设置：滚动条默认宽度是16px 将thead的宽度减16px*/
+        table thead {
+            width: calc(100% - 1em)
+        }
+
+    </style>
+</head>
+<body>
+<!--header start here-->
+<div class="header">
+    <h3 class="main-head">WeSurvey</h3>
+    <div class="head-strip">
+        <div class="head-strip-left">
+            <span class="joe"><img src="/static/images/1.png" alt=""> </span>
+            <div class="joe-text">
+                <h2>Welcome back!</h2>
+                <a href="http://cherrymonth.top:5000/my_doc/1" target="_blank">我的个人博客</a>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+    <!--header bottom start here-->
+    <div class="header-bottom">
+        <div class="col-md-4 header-bot-left">
+            <!--user-profile start here-->
+            <div class="user-profile">
+                <div class="user-prof-top">
+                    <span class="cros"> </span>
+                    <div class="col-md-4 user-prof-img">
+                        <img src="/static/images/2.png" alt="">
+                    </div>
+                    <div class="col-md-8 user-prof-text">
+                        <h3>SongJian</h3>
+                        <p>A Observer of Live!</p>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="user-polio-bot">
+                    <div class="col-md-4 user-prof-numb like-wt">
+                        <span class="like-heart"> </span>
+                        <h6>25,498</h6>
+                    </div>
+                    <div class="col-md-4 user-prof-numb fdback">
+                        <span class="feedback"> </span>
+                        <h6>145,369</h6>
+                    </div>
+                    <div class="col-md-4 user-prof-numb comment">
+                        <span class="comment-mess"> </span>
+                        <h6>2,487,521</h6>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+            </div>
+            <!--alaram start here-->
+            <div class="alarm">
+                <div class="alarm-top">
+                    <h6>NEXT EVENT IN</h6>
+                    <span class="bell"> </span>
+                    <div class="clearfix"></div>
+                </div>
+                <div id="countdown"></div>
+                <div class="dottes">
+                    <span class="dot1">:</span>
+                    <span class="dot2">:</span>
+                </div>
+                <h4>Hour</h4>
+                <h5>Min</h5>
+                <h3>Sec</h3>
+                <a href="http://cherrymonth.top:5000" target="_blank">My Blog！</a>
+                <div class="clearfix"></div>
+            </div>
+            <div class="mountain-img">
+                <div class="mountain-strip">
+                    <div class="col-md-6 moutain-follow">
+                        <span class="red-heart"> </span>
+                        <p>1,182</p>
+                    </div>
+                    <div class="col-md-6 moutain-follow">
+                        <span class="gree-download"> </span>
+                        <p>14,327</p>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 header-bot-right">
+
+            <input type="hidden" id="sensor" value="{{session['key']}}">
+            <input type="hidden" id="backend" value="{{backend}}">
+            <div id="container" style="min-width:400px;height:400px"></div>
+            {% if session['key'] and backend %}
+            <script src="/static/js/sockjs.min.js"></script>
+            <script src="/static/js/sockjsClient.js"></script>
+            {% endif %}
+            <div class="analytic">
+                <div class="analytic-top">
+                    <div class="infograpy"><h5>SALES INFOGRAPHIC</h5></div>
+                    <span class="share"> </span>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="banner">
+                    <div class="bann-left">
+                        <span class="bann-part"> </span>
+                        <div class="bann-text">
+                            <h1>Want to search Analitycs History?</h1>
+                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit</p>
+                        </div>
+                    </div>
+                    <div class="bann-rit">
+                        <a href="#">EXPLORE</a>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="analytic-bottom">
+
+                    <ul>
+                        <li><h3><a href="#">$157,182</a></h3>
+                            <p>Total Earnings</p></li>
+                        <li><h3><a href="#">$38,952</a></h3>
+                            <p>Revenue</p></li>
+                        <li><h3><a href="#">+800k</a></h3>
+                            <p>New Customers</p></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="main"
+                 style="margin-top: 50px;width:300px; float: left;background: white">
+                <table class='table table-hover' style="height: 150px;">
+                    <thead>
+                    <tr>
+                        <th>结点标记ID</th>
+                        <th>结点名称</th>
+                        <th>结点类型</th>
+                    </tr>
+                    </thead>
+                    <tbody style="height: 150px;">
+                    {% for info in info_list %}
+                    <tr>
+                        <td>
+                            <a href="{{url_for('auth.show_info', key=info[0])}}">{{info[0]}}</a>
+                        </td>
+                        <td>{{info[1]['name']}}</td>
+                        <td>{{info[1]['type']}}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="main" style="margin-top: 50px;float:right;width:800px;background: white">
+                <table class='table table-hover'>
+                    <thead>
+                    <tr>
+                        <th>结点ID</th>
+                        <th>结点名称</th>
+                        <th>结点类型</th>
+                        <th>结点数据</th>
+                        <th>测量时间</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbody_id">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+</body>
+</html>

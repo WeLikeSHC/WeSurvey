@@ -1,0 +1,169 @@
+.countdownHolder{
+	width:67%;
+	margin:0.5em auto;
+	font-size:2.8em;
+	text-align:center;
+	letter-spacing:0px;
+}
+
+.position{
+	display: inline-block;
+	height: 1.4em;
+	overflow: hidden;
+	position: relative;
+	width: 1em;
+	margin: 0 -15px 0 -15px;
+}
+.countDays{
+	display:none;
+}
+.digit{
+	position:absolute;
+	display:block;
+	width:1em;
+	text-align:center;
+	height:1.4em;
+	background:none;
+	border-bottom-right-radius: 51px;
+}
+.countHours {
+	color:#9ea7b3;
+	width: 33%;
+	float:left;
+	display:block;
+}
+.countMinutes{
+	color:#9ea7b3;
+	width: 33%;
+	float:left;
+	display:block;	
+}
+.countSeconds{
+	color: #9ea7b3;
+	width: 33%;
+	float:left;
+	display:block;	
+}
+.digit.static{
+	
+}
+
+/**
+ * You can use these classes to hide parts
+ * of the countdown that you don't need.
+ */
+
+.countDays{ /* display:none !important;*/ }
+.countDiv0{ /* display:none !important;*/ }
+.countHours.digit{color:#69e9cf;}
+.countDiv1{}
+.countMinutes{}
+.countDiv2{}
+.countSeconds{}
+
+
+.countDiv{
+	display: none;
+	width:16px;
+	height:1.6em;
+	position:relative;
+}
+
+.countDiv:before,
+.countDiv:after{
+	position:absolute;
+	width:5px;
+	height:5px;
+	background-color:#444;
+	border-radius:50%;
+	left:50%;
+	margin-left:-3px;
+	top:0.5em;
+	box-shadow:1px 1px 1px rgba(4, 4, 4, 0.5);
+	content:'';
+}
+.countDiv:after{
+	top:0.9em;
+}
+@media screen and (max-width: 1366px) {
+	.countdownHolder {
+		width: 77%;
+	}
+}
+@media screen and (max-width: 1280px) {
+	
+}
+@media screen and (max-width: 1024px) {
+	.countdownHolder{
+		font-size:2em;
+	}	
+	.banner-info p {
+		font-size: 1.15em;
+	}
+.digit {
+  width: 0em;
+}
+.countHours {
+  width: 34%;
+}
+.position {
+  margin: 0 -10px 0 -10px;
+}
+}
+
+@media screen and (max-width: 800px) {
+	.countdownHolder {
+		font-size: 5.5em;
+	}
+	.digit {
+		border-bottom-right-radius: 36px;
+	}
+}
+@media screen and (max-width: 768px) {
+.countdownHolder {
+  font-size: 3.5em;
+}
+.position {
+  margin: 0 -20px 0 -20px;
+}
+}
+@media screen and (max-width: 640px) {
+	.countdownHolder {
+		font-size: 4em;
+		width: 68%;
+	}
+	.digit {
+		border-bottom-right-radius: 25px;
+	}
+	.countdownHolder {
+       font-size: 3.5em;
+   }
+
+.countHours {
+  width: 34%;
+}
+}
+@media screen and (max-width: 480px) {
+	.countdownHolder {
+		font-size: 2.6em;
+		width: 70%;
+	}
+	.digit {
+		border-bottom-right-radius: 15px;
+	}
+	.position {
+  margin: 0 -10px 0 -10px;
+}
+}
+@media screen and (max-width: 320px) {
+	.countdownHolder {
+		font-size: 1.9em;
+		width: 80%;
+	}
+	.position {
+  margin: 0 -12px 0 -10px;
+}
+	.countHours {
+      width: 34%;
+}
+}

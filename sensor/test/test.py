@@ -5,5 +5,6 @@ import xmlrpclib
 
 s = xmlrpclib.Server("http://localhost:5001")
 
-temp = s.get_online_sock()
+temp = s.get_online_protocol()
+print s.get_online_sock()
 print temp
