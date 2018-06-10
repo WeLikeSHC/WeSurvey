@@ -15,6 +15,10 @@ def show_info(key):
 
 @auth.route("/", methods=['GET', 'POST'])
 def index():
-    rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
-    rpc_info = rpc_server.get_online_protocol()
+    rpc_info = list()
+    try:
+        rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
+        rpc_info = rpc_server.get_online_protocol()
+    except Exception as e:
+        print e
     return render_template('index.html', backend=current_app.config['UI_ADDRESS'], info_list=rpc_info)
