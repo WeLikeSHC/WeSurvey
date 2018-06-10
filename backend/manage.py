@@ -21,9 +21,14 @@ rpc_point.listen(server.Site(Rpc))  # 把资源和对应的端口进行绑定
 
 send_data = SendUiFactory("SendUiFactory", SendUiProtocol)
 send_data.OnlineProtocol = online
+
+send_js = SensorFactory('SensorJSFactory', SensorProtocol)
+send_js.OnlineProtocol = online
+
 root = resource.Resource()
 
 root.putChild('show_data', SockJSResource(send_data))
+root.putChild('show_js', SockJSResource(send_js))  # 接收node red 的数据 可以把js对象当做数据采集结点
 
 site = server.Site(root)
 reactor.listenTCP(int(config.ui_port), site)
