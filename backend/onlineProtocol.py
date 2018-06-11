@@ -14,9 +14,10 @@ class OnlineProtocol(object):
 
     def __init__(self):
         self.online_protocol = dict()
-        self.cache = dict()  # 每个传感器的数据
+        self.cache = dict()  # 每个传感器的缓存数据
         self.length = 20
         self.observe = dict()
+        self.id_name_map = dict()
 
     def get_online_protocol(self, div_name):
 
@@ -54,10 +55,9 @@ class OnlineProtocol(object):
             del self.cache[div_name]
             del self.observe[div_name]
             del self.online_protocol[div_name]
+            print "Delete " + div_name + " after, the current equipment is " + str(self.online_protocol)
         else:
             print "Not Found the div you want to delete!"
-
-        print "Delete " + div_name + " after, the current equipment is " + str(self.online_protocol)
 
 
 online = OnlineProtocol()

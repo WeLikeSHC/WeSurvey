@@ -45,6 +45,7 @@ class CreateConnection(object):
         info["info"] = "null"
         info['type'] = 'temp'
         info['name'] = 'jian'
+        info['user_id'] = '1'
         return info
 
 

@@ -2,15 +2,15 @@
 
 from twisted.internet import reactor
 from onlineProtocol import online
-from factory_protocol.protocol.sensorprotocol import SensorProtocol
-from factory_protocol.factory.sensorfactory import SensorFactory
-from factory_protocol.protocol.SendUi import SendUiProtocol
-from factory_protocol.factory.SendUiFactory import SendUiFactory
+from webapp.factory_protocol.protocol.sensorprotocol import SensorProtocol
+from webapp.factory_protocol.factory.sensorfactory import SensorFactory
+from webapp.factory_protocol.protocol.SendUi import SendUiProtocol
+from webapp.factory_protocol.factory.SendUiFactory import SendUiFactory
 from stateRPC import Rpc
 from twisted.web import resource, server
 from txsockjs.factory import SockJSResource
 from twisted.internet import endpoints
-from config import config
+from webapp.config import config
 
 sensor = SensorFactory('SensorFactory', SensorProtocol)
 sensor.OnlineProtocol = online

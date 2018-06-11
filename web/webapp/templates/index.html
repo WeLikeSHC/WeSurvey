@@ -3,8 +3,10 @@
 <head>
     <title> We Survey </title>
     <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/jquery-1.11.0.min.js"></script>
     <script src="/static/js/highcharts.js"></script>
+    <script src="{{ url_for('static',filename='js/jquery-1.11.1.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/jquery.validate.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/messages_zh.js') }}"></script>
     <link href="/static/css/style.css" rel="stylesheet" type="text/css" media="all"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
@@ -65,15 +67,43 @@
 </head>
 <body>
 <!--header start here-->
+
 <div class="header">
     <h3 class="main-head">WeSurvey</h3>
+
+    <script>
+        function close_flash() {
+            var btn = document.getElementById('flash')
+            btn.style.display = 'none'
+        }
+    </script>
+    <div class="container" id="flash" style="text-align:center;">
+        <div class="row clearfix">
+            {% for message in get_flashed_messages(with_categories=True) %}
+            {% if message[1] != 'Please log in to access this page.' %}
+            <div class="alert alert-{{ message[0] }}">
+                <button type="button" class="close" data-dismiss="alert" onclick="close_flash()">&times;</button>
+                {{ message[1] }}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
     <div class="head-strip">
         <div class="head-strip-left">
-            <span class="joe"><img src="/static/images/1.png" style="width:100px;height: 100px;" alt=""> </span>
+            {% if current_user.is_authenticated %}
+            <span class="joe"><img src="{{current_user.image_name}}" style="width:100px;height: 100px;" alt=""> </span>
+            {% else %}
+            <span class="joe"><img src="" style="width:100px;height: 100px;" alt=""> </span>
+            {% endif %}
             <div class="joe-text">
                 <h2>Welcome back!</h2>
-                <a href="http://cherrymonth.top:5000/my_doc/1" target="_blank">我的个人博客</a>
+                <a href="http://cherrymonth.top:5000/my_doc/{{current_user.id}}" target="_blank">我的个人博客</a>
             </div>
+        </div>
+        <div style="float: right">
+            <ul><li><a href="{{url_for('auth.logout')}}">登出</a></li></ul>
         </div>
         <div class="clearfix"></div>
     </div>
@@ -86,11 +116,17 @@
                 <div class="user-prof-top">
                     <span class="cros"> </span>
                     <div class="col-md-4 user-prof-img">
-                        <img src="/static/images/2.png" style="width:100px;height: 100px;" alt="">
+                        {% if current_user.is_authenticated %}
+                        <img src="{{current_user.image_name}}" style="width:100px;height: 100px;" alt="">
+                        {% else %}
+                        <img src="" style="width:100px;height: 100px;" alt="">
+                        {% endif %}
                     </div>
                     <div class="col-md-8 user-prof-text">
-                        <h3>SongJian</h3>
-                        <p>A Observer of Live !</p>
+                        {% if current_user.is_authenticated %}
+                        <h3>{{current_user.username}}</h3>
+                        <p>{{current_user.about_me}}</p>
+                        {% endif %}
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -110,6 +146,31 @@
                     </div>
                     <div class="clearfix"></div>
                 </div>
+                {% if not current_user.is_authenticated %}
+                <div class="login">
+                    <h4>SIMPLE LOGIN FORM</h4>
+                    <form id="form" class="form" method='GET' action="{{url_for('auth.login')}}">
+                        <div class="form-group" style="color:red;width:370px;">
+                            <label class="control-label" for="email" style="color:black">邮箱</label>
+                            <input class="form-control" id="email" name="email" required type="email" minlength="2">
+                        </div>
+                        <div class="form-group" style="color:red;width:370px;">
+                            <label class="control-label" for="password" style="color:black">密码</label>
+                            <input class="form-control" id="password" name="password" required type="password"
+                                   minlength="6" maxlength="10">
+                        </div>
+                        <div class="remember">
+							<span class="checkbox1">
+								 <label class="checkbox"><input type="checkbox" checked=""><i> </i>Remember me</label>
+							</span>
+                            <div class="send">
+                                <input type="submit" value="LOGIN">
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
 
             </div>
             <!--alaram start here-->

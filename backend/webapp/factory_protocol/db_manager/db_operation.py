@@ -1,9 +1,9 @@
 # coding=utf-8
 
 from twisted.enterprise import adbapi
-from backend.config import config
 import happybase
 from twisted.internet import defer, reactor
+from webapp.config import config
 
 
 class MySQLDBConnection(object):

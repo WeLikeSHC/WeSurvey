@@ -4,17 +4,19 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from flask_login import LoginManager
 from flask import render_template
-from web.webapp.main.auth import auth
-from web.config import config
+from config import config
 
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.session_protection = "strong"
-login_manager.login_view = ""
+login_manager.login_view = "auth.index"
+online = dict()
 
 
 def create_app(object_name):
+    from main.auth import auth
+
     app = Flask(__name__)
     app.config.from_object(config[object_name])
     db.init_app(app)
