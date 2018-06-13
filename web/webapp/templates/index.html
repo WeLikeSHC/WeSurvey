@@ -94,13 +94,13 @@
         <div class="head-strip-left">
             {% if current_user.is_authenticated %}
             <span class="joe"><img src="{{current_user.image_name}}" style="width:100px;height: 100px;" alt=""> </span>
+             <div class="joe-text">
+                <h2>Welcome back!</h2>
+                <a href="http://cherrymonth.top:5000/my_doc/{{current_user.id}}/1" target="_blank">我的个人博客</a>
+            </div>
             {% else %}
             <span class="joe"><img src="" style="width:100px;height: 100px;" alt=""> </span>
             {% endif %}
-            <div class="joe-text">
-                <h2>Welcome back!</h2>
-                <a href="http://cherrymonth.top:5000/my_doc/{{current_user.id}}" target="_blank">我的个人博客</a>
-            </div>
         </div>
         <div style="float: right">
             <ul><li><a href="{{url_for('auth.logout')}}">登出</a></li></ul>
