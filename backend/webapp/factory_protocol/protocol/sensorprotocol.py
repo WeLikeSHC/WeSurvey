@@ -59,7 +59,7 @@ class SensorProtocol(Protocol):
 
                 self.factory.OnlineProtocol.id_name_map[temp['id']] = self.name
                 self.factory.OnlineProtocol.cache.get(self.name).append(temp)
-                db.execute_insert('sensor', temp.keys(), [temp[key] for key in temp.keys()])
+                # db.execute_insert('sensor', temp.keys(), [temp[key] for key in temp.keys()])
                 for observe in self.factory.OnlineProtocol.observe.get(self.name):  # 观察者模式　发送给所有关注该结点的sockjs
                     observe.transport.write(json.dumps(temp))
                 self.transport.write(json.dumps({"status": 200}))
