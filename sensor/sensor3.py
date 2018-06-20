@@ -43,9 +43,9 @@ class CreateConnection(object):
         info["entry_time"] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         info["entry_data"] = random.uniform(-10, 50)
         info["info"] = "null"
-        info['type'] = 'temp'
+        info['type'] = 'mois'
         info['name'] = 'jian'
-        info['user_id'] = '1'
+        info['user_id'] = '12'
         return info
 
 

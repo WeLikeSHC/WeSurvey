@@ -54,8 +54,14 @@ class ConnectionProtocol(Protocol):
         try:
             print data
             json_data = json.loads(data)
-            if json_data['status'] != 200:
-                self.connectionLost('status code is not 200 !')
+            if json_data['status'] == 200:
+                print "success"
+            elif json_data['status'] == 404:
+                print 'not find'
+            elif json_data['status'] == 403:
+                self.connectionLost('node existed !')
+            else:
+                self.connectionLost("some thing error")
         except Exception as e:
             print e
 

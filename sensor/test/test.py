@@ -7,4 +7,7 @@ s = xmlrpclib.Server("http://localhost:5001")
 
 temp = s.get_online_protocol()
 print s.get_online_sock()
-print temp
+
+data = {"user_id": 1, 'url': "www.baidu.com", "num": 10, "dispersion": 5, "type": True, "func": ""}
+
+print s.add_job(data)
