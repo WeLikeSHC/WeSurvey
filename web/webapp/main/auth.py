@@ -98,6 +98,10 @@ def word_cloud():
     form = InputForm()
     if request.method == "POST":
         try:
+            if form.algorithm.data == "dfs":
+                form.algorithm.data = "深度优先搜索"
+            else:
+                form.algorithm.data = "广度优先搜索"
             rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
             status = rpc_server.add_job(str(form), current_user.id)
             if(status['status']) != 200:
