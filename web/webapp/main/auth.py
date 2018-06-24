@@ -5,6 +5,7 @@ import xmlrpclib
 import requests
 from models import User
 from .. import online
+from form import InputForm
 from flask import current_app, request
 from flask_login import login_required, current_user, login_user
 import json
@@ -12,8 +13,8 @@ import json
 auth = Blueprint("auth", __name__)
 
 
-@login_required
 @auth.route("/show/<key>", methods=['GET', 'POST'])
+@login_required
 def show_info(key):
     session['key'] = key
     return redirect(url_for('auth.index'))
@@ -26,7 +27,6 @@ def index():
         try:
             rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
             rpc_info = rpc_server.get_online_protocol()
-            print rpc_info
             for rpc in rpc_info:
                 if rpc and rpc[1]['user_id'] != str(current_user.id):
                     rpc_info.remove(rpc)
@@ -69,8 +69,40 @@ def login():
 def logout():
     if current_user.is_authenticated:
         del online[current_user.id]
-        del session['key']
+        if session.get('key'):
+            del session['key']
         flash(u"登出成功!", "success")
     else:
         flash(u"您尚未登录,无法注销!", "warning")
     return redirect(url_for("auth.index"))
+
+
+@auth.route("/node_info/<_node>", methods=['GET', 'POST'])
+@login_required
+def node_info(_node):
+    if request.method == "GET":
+        return render_template("node_info.html", node=_node, backend=current_app.config['UI_ADDRESS'])
+    return redirect(url_for("auth.node_info", node=_node))
+
+
+@auth.route("/node", methods=['GET', 'POST'])
+@login_required
+def node():
+    rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
+    node_list = map(lambda x: json.loads(x), rpc_server.get_online_node())
+    return render_template("node.html", node_list=node_list)
+
+
+@auth.route("/word_cloud", methods=['GET', 'POST'])
+def word_cloud():
+    form = InputForm()
+    if request.method == "POST":
+        try:
+            rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
+            status = rpc_server.add_job(str(form))
+            if(status['status']) != 200:
+                flash(status['info'], "warning")
+        except Exception as e:
+            flash(str(e), "warning")
+        return redirect(url_for("auth.word_cloud"))
+    return render_template("word_cloud.html", form=form)

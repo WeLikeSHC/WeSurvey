@@ -86,9 +86,19 @@ class StateRpc(xmlrpc.XMLRPC):
     def xmlrpc_add_job(self, data):  # 提供的接收任务的接口
         if create_connection.instance:
             create_connection.instance.work = data
+            create_connection.instance.work_num += 1
+            create_connection.instance.cur_weight = data['cur_weight']
             return {'status': 200}
         else:
             return {"status": 500, "info": "no master"}
+
+    def xmlrpc_get_node_info(self):
+        return {"memory_use": random.uniform(0, 1), "memory_total": "15GB", "cpu_use": random.uniform(0, 1), "cpu_total": "8个",
+                "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "network_receive": "1.2M/s", "network_launch": "1.2M/s", "disk_use": random.uniform(0, 1),
+                "disk_total": "1000TB",
+                "work_number": create_connection.instance.work_num, "cur_weight": create_connection.instance.cur_weight,
+                "weight": create_connection.instance.weight}
 
 
 rpc = StateRpc()

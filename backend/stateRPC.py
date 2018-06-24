@@ -1,7 +1,9 @@
 # coding=utf-8
 
 from twisted.web import xmlrpc
-from onlineProtocol import online
+from backend.webapp.onlineProtocol import online
+import json
+from webapp.factory_protocol.dispatch.job_dispatch import NodeDisPatch
 
 
 class StateRpc(xmlrpc.XMLRPC):
@@ -15,6 +17,13 @@ class StateRpc(xmlrpc.XMLRPC):
 
     def xmlrpc_get_online_sock(self):
         return [key for key in online.cache.keys() if key.startswith("sockjs")]
+
+    def xmlrpc_add_job(self, data):  # 提供的接收任务的接口
+        return NodeDisPatch.put_data(json.loads(data))
+
+    def xmlrpc_get_online_node(self):
+        temp = online.get_online_protocol
+        return [str(temp(key)) for key in online.cache.keys() if key.startswith("node")]
 
 
 Rpc = StateRpc()

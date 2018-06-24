@@ -4,7 +4,7 @@ import os
 import ConfigParser
 
 
-config_file = "./system.ini"
+config_file = "./mysql.ini"
 
 if not os.path.exists(config_file):
     raise Exception("config file not find!")
@@ -27,6 +27,7 @@ class Config:
         self.max_logfile = cf.get('max_logfile', 'max_logfile')
         self.host = cf.get('host', 'host')
         self.ui_port = cf.get('ui_port', 'port')
+        self.slave_port = cf.get('slave_port', 'port')
 
 
 config = Config()

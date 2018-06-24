@@ -4,7 +4,6 @@
 
 
 var host = document.getElementById("backend").value;
-console.log(host, name);
 
 type_list = {'temp': '温度', 'mois': '湿度'};
 
@@ -64,7 +63,6 @@ function insertTable(tbody_id, info_list) {
 
 sock.onmessage = function (e) {
     var parse_info = JSON.parse(e.data);
-
     if (parse_info instanceof Array) {
         chart = Highcharts.chart('container', {
             chart: {
@@ -130,6 +128,6 @@ sock.onmessage = function (e) {
 };
 
 sock.onclose = function () {
-    console.log('close')
+    console.log('close');
 };
 

@@ -29,6 +29,9 @@ class ConnectionProtocol(Protocol):
     def __init__(self):
         self.div_name = ""
         self.status = False
+        self.weight = 50
+        self.cur_weight = 50
+        self.work_num = 0
 
     def connectionMade(self):
         # 工厂创建的protocol数目增加一个

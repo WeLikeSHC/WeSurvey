@@ -4,7 +4,7 @@
 实现任务的分发
 """
 
-from .. onlineProtocol import online
+from backend.webapp.onlineProtocol import online
 import xmlrpclib
 import datetime
 
@@ -13,7 +13,7 @@ class NodeDisPatch:
 
     def __init__(self):
         self.task_id = 0
-        self.work = list()
+        self.work = dict()
 
     @staticmethod
     def get_next_index(node_list):  # 先找到权重最大的结点分配给其任务 然后降低其权重
@@ -31,20 +31,26 @@ class NodeDisPatch:
 
     def put_data(self, data):
         node_list = online.get_online_protocols("node")
-        node = self.get_next_index(node_list)
+        node = self.get_next_index(node_list) if node_list else None
         if node:
-            try: 
+            try:
                 server = xmlrpclib.Server("http://" + node.rpc_address)
-                data['task_id'] = self.task_id + 1
-                self.task_id +=  1
+                data['task_id'] = str(self.task_id)
+                self.task_id += 1
                 data['node_id'] = node.id
+                node.work_number += 1
+                data['cur_weight'] = node.cur_weight
                 data['status'] = 'work'
                 data['schedule'] = 0.0
                 data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                self.work.append(data)
+                self.work[data['task_id']] = data
+                online.observe['task' + data['task_id']] = list()
                 server.add_job(data)
                 return {'status': 200}
             except Exception as e:
                 return {'status': 500, 'info': str(e)}
         else:
             return {'status': 500, 'info': 'no slave can work!'}
+
+
+NodeDisPatch = NodeDisPatch()

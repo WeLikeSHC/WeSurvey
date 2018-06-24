@@ -90,6 +90,13 @@ class StateRpc(xmlrpc.XMLRPC):
         else:
             return {"status": 500, "info": "no master"}
 
+    def xmlrpc_get_node_info(self):
+        return {"memory_use": random.uniform(0, 1), "memory_total": "15GB", "cpu_use": random.uniform(0, 1),
+                "cpu_total": "8个",
+                "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                "network_receive": "1.2M/s", "network_launch": "1.2M/s", "disk_use": random.uniform(0, 1),
+                "disk_total": "1000TB", "work_number": 10, "cur_weight": 50, "weight": 50}
+
 
 rpc = StateRpc()
 rpc_point = endpoints.TCP4ServerEndpoint(reactor, 5006)

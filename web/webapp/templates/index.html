@@ -1,79 +1,89 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-    <title> We Survey </title>
-    <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
-    <script src="/static/js/highcharts.js"></script>
-    <script src="{{ url_for('static',filename='js/jquery-1.11.1.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/jquery.validate.min.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/messages_zh.js') }}"></script>
-    <link href="/static/css/style.css" rel="stylesheet" type="text/css" media="all"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <script type="application/x-javascript"> addEventListener("load", function () {
-        setTimeout(hideURLbar, 0);
-    }, false);
+{% extends "base.html" %}
 
-    function hideURLbar() {
-        window.scrollTo(0, 1);
-    } </script>
-    <!-- start-smoth-scrolling -->
-    <script type="text/javascript" src="/static/js/move-top.js"></script>
-    <script type="text/javascript" src="/static/js/easing.js"></script>
-    <script type="text/javascript">
-        jQuery(document).ready(function ($) {
-            $(".scroll").click(function (event) {
-                event.preventDefault();
-                $('html,body').animate({scrollTop: $(this.hash).offset().top}, 1000);
-            });
+{% block head %}
+{% block title %} We Survey {% endblock %}
+
+{% block styles %}
+<link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="/static/css/style.css" rel="stylesheet" type="text/css" media="all"/>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    table {
+        /*设置相邻单元格的边框间的距离*/
+        border-spacing: 0;
+        /*表格设置合并边框模型*/
+        border-collapse: collapse;
+    }
+
+    /*关键设置 tbody出现滚动条*/
+    table tbody {
+        display: block;
+        height: 250px;
+        overflow-y: scroll;
+    }
+
+    table thead,
+    tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    /*关键设置：滚动条默认宽度是16px 将thead的宽度减16px*/
+    table thead {
+        width: calc(100% - 1em)
+    }
+
+</style>
+{% endblock styles %}
+
+{% block meta %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/highcharts.js"></script>
+<script src="{{ url_for('static',filename='js/jquery-1.11.1.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/jquery.validate.min.js') }}"></script>
+<script src="{{ url_for('static',filename='js/messages_zh.js') }}"></script>
+<script type="application/x-javascript"> addEventListener("load", function () {
+    setTimeout(hideURLbar, 0);
+}, false);
+
+function hideURLbar() {
+    window.scrollTo(0, 1);
+} </script>
+<!-- start-smoth-scrolling -->
+<script type="text/javascript" src="/static/js/move-top.js"></script>
+<script type="text/javascript" src="/static/js/easing.js"></script>
+<script type="text/javascript">
+    jQuery(document).ready(function ($) {
+        $(".scroll").click(function (event) {
+            event.preventDefault();
+            $('html,body').animate({scrollTop: $(this.hash).offset().top}, 1000);
         });
-    </script>
-    <link href="/static/css/jquery.countdown.css" rel="stylesheet" type="text/css" media="all"/>
-    <script src="/static/js/jquery.countdown.js"></script>
-    <script src="/static/js/script.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
+    });
+</script>
+<link href="/static/css/jquery.countdown.css" rel="stylesheet" type="text/css" media="all"/>
+<script src="/static/js/jquery.countdown.js"></script>
+<script src="/static/js/script.js"></script>
+{% endblock %}
+{% endblock %}
 
-        table {
-            /*设置相邻单元格的边框间的距离*/
-            border-spacing: 0;
-            /*表格设置合并边框模型*/
-            border-collapse: collapse;
-        }
-
-        /*关键设置 tbody出现滚动条*/
-        table tbody {
-            display: block;
-            height: 250px;
-            overflow-y: scroll;
-        }
-
-        table thead,
-        tbody tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        /*关键设置：滚动条默认宽度是16px 将thead的宽度减16px*/
-        table thead {
-            width: calc(100% - 1em)
-        }
-
-    </style>
-</head>
-<body>
+{% block body %}
 <!--header start here-->
 
 <div class="header">
+    {% block narbar %}
     <h3 class="main-head">WeSurvey</h3>
-
     <script>
         function close_flash() {
-            var btn = document.getElementById('flash')
+            var btn = document.getElementById('flash');
             btn.style.display = 'none'
         }
     </script>
@@ -94,16 +104,32 @@
         <div class="head-strip-left">
             {% if current_user.is_authenticated %}
             <span class="joe"><img src="{{current_user.image_name}}" style="width:100px;height: 100px;" alt=""> </span>
-             <div class="joe-text">
-                <h2>Welcome back!</h2>
+            <div class="joe-text">
+                <h2><a href="{{url_for('auth.index')}}" style="color: #9ea7b3">Welcome back!</a></h2>
                 <a href="http://cherrymonth.top:5000/my_doc/{{current_user.id}}/1" target="_blank">我的个人博客</a>
             </div>
             {% else %}
             <span class="joe"><img src="" style="width:100px;height: 100px;" alt=""> </span>
             {% endif %}
         </div>
+        <div class="head-strip-left">
+            {% if current_user.is_authenticated %}
+            <div>
+                <h2 style="margin-left: 10%;margin-top: 10px"><a href="{{url_for('auth.node')}}" style="color: #9ea7b3">结点状态图</a></h2>
+            </div>
+            {% endif %}
+        </div>
+        <div class="head-strip-left">
+            {% if current_user.is_authenticated %}
+            <div>
+                <h2 style="margin-left: 10%;margin-top: 10px"><a href="{{url_for('auth.word_cloud')}}" style="color: #9ea7b3">制作词云</a></h2>
+            </div>
+            {% endif %}
+        </div>
         <div style="float: right">
-            <ul><li><a href="{{url_for('auth.logout')}}">登出</a></li></ul>
+            <ul>
+                <li><a href="{{url_for('auth.logout')}}">登出</a></li>
+            </ul>
         </div>
         <div class="clearfix"></div>
     </div>
@@ -205,6 +231,9 @@
                 </div>
             </div>
         </div>
+        {% endblock %}
+
+        {% block content %}
         <div class="col-md-8 header-bot-right">
 
             <input type="hidden" id="sensor" value="{{session['key']}}">
@@ -270,7 +299,6 @@
                     </tbody>
                 </table>
             </div>
-
             <div class="main" style="margin-top: 50px;float:right;width:800px;background: white">
                 <table class='table table-hover'>
                     <thead>
@@ -287,10 +315,9 @@
                 </table>
             </div>
         </div>
+        {% endblock %}
         <div class="clearfix"></div>
     </div>
     <div class="clearfix"></div>
 </div>
-
-</body>
-</html>
+{% endblock %}

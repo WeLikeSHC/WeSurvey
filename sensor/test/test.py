@@ -10,4 +10,4 @@ print s.get_online_sock()
 
 data = {"user_id": 1, 'url': "www.baidu.com", "num": 10, "dispersion": 5, "type": True, "func": ""}
 
-print s.add_job(data)
+print s.get_online_node()

@@ -70,7 +70,7 @@ span.joe {
 }
 .head-strip-left {
   float: left;
-  width: 50%;
+  width: 30%;
 }
 .head-strip-right {
   float: right;
@@ -864,7 +864,7 @@ span.menu-at-on,span.menu-at-on1{
 	cursor: pointer;
 	position: relative;
 }
-.menu3  ul,{
+.menu3  ul {
 	display: none;
 	position:absolute;
 	border:1px solid #E4E2E2;
@@ -994,7 +994,6 @@ li.date_desc-timer{
 li.date_desc-timer p {
   padding: 0em 0em 0em 1.3em;
   font-size: 0.95em;
-  color: #c7c7c7c;
   font-family:'SignikaNegative-Regular';
 }
 p.auther-para {
@@ -1265,7 +1264,6 @@ span.highlight, span.light_color {
 }
 li.sml-img {
 	float: left;
-	background: url(../images/tree.jpg) no-repeat 0px 0px;
 	width: 100px;
 	height: 100px;
 	display: inline-block;

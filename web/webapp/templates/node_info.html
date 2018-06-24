@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+
+{% block content %}
+<input type="hidden" id="backend" value="{{backend}}">
+<input type="hidden" id="node_name" value="{{node}}">
+<script src="/static/js/sockjs.min.js"></script>
+<script src="/static/js/sockjsInfo.js"></script>
+<div class="col-md-8 header-bot-right">
+    <div id="memory"></div>
+    <div id="cpu"></div>
+    <div class="col-md-8 header-bot-left" style="background-color: white;float: left">
+        <label>CPU使用率&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #eeeeef" id="cpu_use" readonly /></label>
+        <label>物理CPU个数&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #eeeeef" id="cpu_total" readonly /></label>
+        <br>
+        <label>内存使用率&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #eeeeef" id="memory_use"  readonly /></label>
+        <label>物理内存大小&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #eeeeef" id="memory_total" readonly /></label>
+        <br>
+        <label>硬盘使用率&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #eeeeef" id="disk_use" readonly /></label>
+        <label>物理硬盘大小&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #eeeeef" id="disk_total" readonly /></label>
+        <br>
+        <label>网络发送速率<input style="background-color: #eeeeef" id="network_launch" readonly /></label>
+        <label>网络接收速率&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #eeeeef" id="network_receive" readonly /></label>
+        <br>
+        <label>当前任务个数<input style="background-color: #eeeeef" id="work_number" readonly /></label>
+        <label>当前实际权重&nbsp;&nbsp;&nbsp;&nbsp;<input style="background-color: #eeeeef" id="cur_weight" readonly /></label>
+        <br>
+        <label>结点目标权重<input style="background-color: #eeeeef" id="weight" readonly /></label>
+    </div>
+</div>
+{% endblock %}

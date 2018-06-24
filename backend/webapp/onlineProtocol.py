@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import re
+from twisted.internet import reactor
 
 """
     此处主要为上线的小网关设备服务：
@@ -16,8 +17,8 @@ class OnlineProtocol(object):
         self.online_protocol = dict()
         self.cache = dict()  # 每个传感器的缓存数据
         self.length = 20
-        self.observe = dict()
-        self.id_name_map = dict()
+        self.observe = dict()  # 每个事件注册的观察者列表
+        self.id_name_map = dict()  # 事件与id的映射
 
     def get_online_protocol(self, div_name):
 
@@ -54,10 +55,20 @@ class OnlineProtocol(object):
             print "You want to delete " + div_name
             del self.cache[div_name]
             del self.observe[div_name]
+            if not div_name.startswith("sockjs") and not div_name.startswith("info"):
+                del self.id_name_map[self.get_online_protocol(div_name).id]
             del self.online_protocol[div_name]
             print "Delete " + div_name + " after, the current equipment is " + str(self.online_protocol)
         else:
             print "Not Found the div you want to delete!"
 
+    def get_node_info(self):
+        handler_list = [self.online_protocol.get(key) for key in self.cache.keys() if key.startswith("node")]
+        for handler in handler_list:
+            if self.observe.get(handler.name):  # 若该结点添加的存在观察者　则进行信息的查询
+                handler.get_node_info()
+        reactor.callLater(1, self.get_node_info)
+
 
 online = OnlineProtocol()
+reactor.callLater(1, online.get_node_info)

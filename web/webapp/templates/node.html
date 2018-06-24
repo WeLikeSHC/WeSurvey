@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+
+{% block content %}
+<table class='table table-hover' style="background: white; width: 65%">
+    <thead>
+    <tr>
+        <th>结点名称</th>
+        <th>结点ID</th>
+        <th>结点RPC地址</th>
+        <th>结点权重</th>
+        <th>结点状态</th>
+        <th>实时状态查看链接</th>
+    </tr>
+    </thead>
+    <tbody style="height:500px;">
+    {% for node in node_list %}
+    <tr>
+        <td>{{node['name']}}</td>
+        <td>{{node['id']}}</td>
+        <td>{{node['rpc_address']}}</td>
+        <td>{{node['weight']}}</td>
+        <td>Running</td>
+        <td>
+            <a href="{{url_for('auth.node_info', _node=node['name'])}}">点击查看</a>
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

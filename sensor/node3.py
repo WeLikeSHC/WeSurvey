@@ -2,6 +2,9 @@
 
 from init_pro import ConnectionFactory, ConnectionProtocol, Connector
 import sys
+import os
+import sys
+import platform
 from twisted.internet import reactor
 from twisted.python import log
 import random
@@ -89,6 +92,10 @@ class StateRpc(xmlrpc.XMLRPC):
             return {'status': 200}
         else:
             return {"status": 500, "info": "no master"}
+
+    def xmlrpc_get_node_info(self):
+        pass
+
 
 
 rpc = StateRpc()
