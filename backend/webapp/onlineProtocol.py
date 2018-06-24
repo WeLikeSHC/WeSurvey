@@ -55,7 +55,8 @@ class OnlineProtocol(object):
             print "You want to delete " + div_name
             del self.cache[div_name]
             del self.observe[div_name]
-            if not div_name.startswith("sockjs") and not div_name.startswith("info"):
+            if not div_name.startswith("sockjs") and not div_name.startswith("info") \
+                    and not div_name.startswith("taskjs"):
                 del self.id_name_map[self.get_online_protocol(div_name).id]
             del self.online_protocol[div_name]
             print "Delete " + div_name + " after, the current equipment is " + str(self.online_protocol)

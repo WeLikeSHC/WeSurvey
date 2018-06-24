@@ -29,7 +29,7 @@ class NodeDisPatch:
         node_list[_index].cur_weight -= total
         return node_list[_index]
 
-    def put_data(self, data):
+    def put_data(self, data, user_id):
         node_list = online.get_online_protocols("node")
         node = self.get_next_index(node_list) if node_list else None
         if node:
@@ -37,6 +37,7 @@ class NodeDisPatch:
                 server = xmlrpclib.Server("http://" + node.rpc_address)
                 data['task_id'] = str(self.task_id)
                 self.task_id += 1
+                data['user_id'] = user_id
                 data['node_id'] = node.id
                 node.work_number += 1
                 data['cur_weight'] = node.cur_weight
@@ -44,13 +45,20 @@ class NodeDisPatch:
                 data['schedule'] = 0.0
                 data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 self.work[data['task_id']] = data
-                online.observe['task' + data['task_id']] = list()
+                online.observe['user' + str(data['user_id'])] = list()
                 server.add_job(data)
                 return {'status': 200}
             except Exception as e:
                 return {'status': 500, 'info': str(e)}
         else:
             return {'status': 500, 'info': 'no slave can work!'}
+
+    def get_work_info(self, user_id):
+        work = list()
+        for key in self.work.keys():
+            if self.work[key]['user_id'] == user_id:
+                work.append(self.work[key])
+        return work
 
 
 NodeDisPatch = NodeDisPatch()

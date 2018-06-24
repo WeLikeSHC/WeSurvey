@@ -34,12 +34,12 @@ class NodeUiProtocol(Protocol):
     def dataReceived(self, data):
 
         try:
-            self.div_name = 'task' + json.loads(data)["task_id"]
-            if self.factory.OnlineProtocol.observe.get(self.div_name):
+            self.div_name = 'user' + json.loads(data)["user_id"]
+            if self.factory.OnlineProtocol.observe. has_key(self.div_name):
                 if self not in self.factory.OnlineProtocol.observe.get(self.div_name):
                     self.factory.OnlineProtocol.observe.get(self.div_name).append(self)
                     print '{} Client has append a observe {}'.format(self.div_name, self.name)
             else:
-                self.transport.write('error:not existed!')
+                self.transport.write(json.dumps({'error': 'not existed!'}))
         except Exception as e:
             print e

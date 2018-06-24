@@ -99,10 +99,16 @@ def word_cloud():
     if request.method == "POST":
         try:
             rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
-            status = rpc_server.add_job(str(form))
+            status = rpc_server.add_job(str(form), current_user.id)
             if(status['status']) != 200:
                 flash(status['info'], "warning")
         except Exception as e:
             flash(str(e), "warning")
         return redirect(url_for("auth.word_cloud"))
-    return render_template("word_cloud.html", form=form)
+    work_list = list()
+    try:
+        rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
+        work_list = rpc_server.get_work_info(current_user.id)
+    except Exception as e:
+        flash(str(e), "warning")
+    return render_template("word_cloud.html", form=form, work_list=work_list, backend=current_app.config['UI_ADDRESS'])

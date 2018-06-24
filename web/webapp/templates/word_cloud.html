@@ -1,6 +1,10 @@
 {% extends "index.html" %}
 
 {% block content %}
+<input type="hidden" id="backend" value="{{backend}}">
+<input type="hidden" id="user_id" value="{{current_user.id}}">
+<script src="/static/js/sockjs.min.js"></script>
+<script src="/static/js/updatework.js"></script>
 <div class="col-md-8 header-bot-right">
         <form id="user_form" method="post" class="form">
             <div class="form-group">
@@ -26,6 +30,39 @@
             <div class="send">
                 {{ form.submit(class="sign-in-button", style="margin-right:50%;width:400px;height:60px;") }}
             </div>
+        <br>
         </form>
+    <table class="table table-hover" style="margin-top: 10%">
+    <thead>
+    <tr>
+        <th>任务ID</th>
+        <th>目标网址</th>
+        <th>网页遍历算法</th>
+        <th>遍历数量</th>
+        <th>离散度</th>
+        <th>进度</th>
+        <th>任务状态</th>
+        <th>执行任务结点ID</th>
+        <th>最近更新时间</th>
+        <th>下载词云</th>
+    </tr>
+    </thead>
+        <tbody style="height: 600px;">
+        {% for work in work_list %}
+        <tr id="task{{work['task_id']}}">
+            <td>{{work['task_id']}}</td>
+            <td>{{work['url']}}</td>
+            <td>{{work['algorithm']}}</td>
+            <td>{{work['number']}}</td>
+            <td>{{work['dispersion']}}</td>
+            <td>{{work['schedule']}}</td>
+            <td>{{work['status']}}</td>
+            <td>{{work['node_id']}}</td>
+            <td>{{work['entry_time']}}</td>
+            <td><a href="">暂无</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

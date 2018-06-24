@@ -18,8 +18,11 @@ class StateRpc(xmlrpc.XMLRPC):
     def xmlrpc_get_online_sock(self):
         return [key for key in online.cache.keys() if key.startswith("sockjs")]
 
-    def xmlrpc_add_job(self, data):  # 提供的接收任务的接口
-        return NodeDisPatch.put_data(json.loads(data))
+    def xmlrpc_add_job(self, data, user_id):  # 提供的接收任务的接口
+        return NodeDisPatch.put_data(json.loads(data), user_id)
+
+    def xmlrpc_get_work_info(self, user_id):
+        return NodeDisPatch.get_work_info(user_id)
 
     def xmlrpc_get_online_node(self):
         temp = online.get_online_protocol

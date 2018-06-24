@@ -6,7 +6,6 @@ from twisted.internet import reactor
 from twisted.python import log
 import random
 from twisted.web import xmlrpc
-from backend.webapp.onlineProtocol import online
 import json
 from twisted.web import server
 from twisted.internet import endpoints

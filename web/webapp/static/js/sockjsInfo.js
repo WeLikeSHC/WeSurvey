@@ -37,6 +37,7 @@ sock.onopen = function () {
 
 sock.onmessage = function (e) {
     var parse_info = JSON.parse(e.data);
+
     if (parse_info instanceof Array) {
 
         memory = Highcharts.chart('memory', {
@@ -149,8 +150,15 @@ sock.onmessage = function (e) {
         cpu.series[0].addPoint([new Date(parse_info['time']).getTime(), parse_info["cpu_use"]], true, true);
         activeLastPointToolip(cpu);
         for(var temp in parse_info){
-            if(temp !== "time" && temp!== "name")
-            document.getElementById(temp).value = parse_info[temp];
+            if(temp !== "time" && temp!== "name"){
+                try{
+                    document.getElementById(temp).value = parse_info[temp];
+                }
+                catch (e) {
+                    console.log(temp);
+                }
+            }
+
         }
     }
 };

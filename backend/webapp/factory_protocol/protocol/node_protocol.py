@@ -104,7 +104,7 @@ class NodeProtocol(Protocol):
                     if NodeDisPatch.work.get(temp.get('task_id')):
                         NodeDisPatch.work[temp.get('task_id')] = temp
                     # db.execute_insert('sensor', temp.keys(), [temp[key] for key in temp.keys()])
-                        for observe in self.factory.OnlineProtocol.observe.get('task' + str(temp.get('task_id'))):
+                        for observe in self.factory.OnlineProtocol.observe.get('user' + str(temp.get('user_id'))):
                             # 观察者模式　发送给所有关注该结点的sockjs
                             observe.transport.write(json.dumps(temp))
                         self.transport.write(json.dumps({"status": 200}))
