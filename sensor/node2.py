@@ -6,7 +6,6 @@ from twisted.internet import reactor
 from twisted.python import log
 import random
 from twisted.web import xmlrpc
-from backend.webapp.onlineProtocol import online
 import json
 from twisted.web import server
 from twisted.internet import endpoints
@@ -42,15 +41,18 @@ class CreateConnection(object):
                 self.instance = Connector.get_online_protocol('ConnectionPlatform')[0]
                 self.status = True
                 self.instance.transport.write(json.dumps(self.pack_data()))
-                self.instance.work = None
                 print u"已发送采集的到的数据....................."
             else:
-                if self.instance.work:
-                    self.instance.work['schedule'] = 0.5
-                    self.instance.work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    self.instance.work['status'] = 'work'
-                    print self.instance.work['task_id'], "success"
-                    self.instance.transport.write(json.dumps(self.instance.work))
+                work_status = list()
+                for work in self.instance.work:
+                    if int(work['task_id']) % 2 == 0:
+                        continue
+                    work['schedule'] = 0.5
+                    work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    work['status'] = 'work'
+                    work_status.append(work)
+                if work_status:
+                    self.instance.transport.write(json.dumps(work_status))
         reactor.callLater(1, self.create_long_connection)  # 一直尝试在连接
 
     @staticmethod
@@ -58,7 +60,7 @@ class CreateConnection(object):
 
         info = dict()
         info["id"] = '2'
-        info['weight'] = 70
+        info['weight'] = 50
         info['rpc_address'] = "127.0.0.1:5006"
         return info
 
@@ -85,17 +87,32 @@ class StateRpc(xmlrpc.XMLRPC):
 
     def xmlrpc_add_job(self, data):  # 提供的接收任务的接口
         if create_connection.instance:
-            create_connection.instance.work = data
+            create_connection.instance.work.append(data)
+            print len(create_connection.instance.work)
+            create_connection.instance.work_num += 1
+            create_connection.instance.cur_weight = data['cur_weight']
             return {'status': 200}
         else:
             return {"status": 500, "info": "no master"}
 
     def xmlrpc_get_node_info(self):
-        return {"memory_use": random.uniform(0, 1), "memory_total": "15GB", "cpu_use": random.uniform(0, 1),
-                "cpu_total": "8个",
+        return {"memory_use": random.uniform(0, 1), "memory_total": "15GB", "cpu_use": random.uniform(0, 1), "cpu_total": "8个",
                 "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 "network_receive": "1.2M/s", "network_launch": "1.2M/s", "disk_use": random.uniform(0, 1),
-                "disk_total": "1000TB", "work_number": 10, "cur_weight": 50, "weight": 50}
+                "disk_total": "1000TB",
+                "work_number": create_connection.instance.work_num, "cur_weight": create_connection.instance.cur_weight,
+                "weight": create_connection.instance.weight}
+
+    def xmlrpc_kill_task(self, task_id):
+        for work in create_connection.instance.work:
+            if work['task_id'] == task_id:
+                work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                work['status'] = 'failed'
+                create_connection.instance.transport.write(json.dumps([work]))
+                create_connection.instance.work.remove(work)
+                return {"status": 200}
+            else:
+                return {"status": 404}
 
 
 rpc = StateRpc()

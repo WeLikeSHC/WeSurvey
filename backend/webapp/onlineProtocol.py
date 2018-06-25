@@ -67,6 +67,7 @@ class OnlineProtocol(object):
         handler_list = [self.online_protocol.get(key) for key in self.cache.keys() if key.startswith("node")]
         for handler in handler_list:
             if self.observe.get(handler.name):  # 若该结点添加的存在观察者　则进行信息的查询
+            # 上述方式存在问题　会导致图像不连续
                 handler.get_node_info()
         reactor.callLater(1, self.get_node_info)
 

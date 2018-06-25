@@ -3,10 +3,8 @@
 import json
 from twisted.internet.protocol import Protocol
 from ..db_manager.db_operation import db
-import queue
 
-q = queue.Queue()
-q.put(0)
+num = 0
 
 
 class SensorProtocol(Protocol):
@@ -22,7 +20,6 @@ class SensorProtocol(Protocol):
     def connectionLost(self, reason=''):
         if self.status:
             print 'Sensor Client {} lost, the reason is  {}'.format(self.name, reason)
-            q.put(q.get() - 1)
             self.factory.OnlineProtocol.del_client(self.name)
             for (key, items) in self.factory.OnlineProtocol.id_name_map.items():
                 if items == self.name:
@@ -51,9 +48,9 @@ class SensorProtocol(Protocol):
                     self.connectionLost()
             else:
                 if not self.name:
-                    num = q.get() + 1
+                    global num
                     self.name = 'sensor' + str(num)
-                    q.put(num)
+                    num += 1
                     self.status = True
                     self.id = temp.get('id')
                     print 'Sensor Client {} Connection '.format(self.name)

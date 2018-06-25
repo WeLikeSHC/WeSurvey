@@ -41,7 +41,7 @@ def index():
 def login():
     email = request.args.get('email')
     password = request.args.get('password')
-    url = "http://cherrymonth.top:5000/get_user_info/?email={}&password={}".format(email, password)
+    url = "https://cherrymonth.top/get_user_info/?email={}&password={}".format(email, password)
     ret = requests.post(url)
     info = json.loads(ret.text)
     if info != '{}' and info:

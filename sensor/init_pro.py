@@ -32,6 +32,7 @@ class ConnectionProtocol(Protocol):
         self.weight = 50
         self.cur_weight = 50
         self.work_num = 0
+        self.work = list()
 
     def connectionMade(self):
         # 工厂创建的protocol数目增加一个

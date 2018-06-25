@@ -3,11 +3,8 @@
 
 import xmlrpclib
 
-s = xmlrpclib.Server("http://localhost:5001")
-
-temp = s.get_online_protocol()
-print s.get_online_sock()
+s = xmlrpclib.Server("http://localhost:5005")
 
 data = {"user_id": 1, 'url': "www.baidu.com", "num": 10, "dispersion": 5, "type": True, "func": ""}
 
-print s.get_work_info(1)
+print s.kill_task("1")

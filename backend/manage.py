@@ -8,7 +8,6 @@ from webapp.factory_protocol.protocol.SendUi import SendUiProtocol
 from webapp.factory_protocol.factory.SendUiFactory import SendUiFactory
 from webapp.factory_protocol.protocol.NodeInfoUi import NodeInfoUiProtocol
 from webapp.factory_protocol.factory.NodeFactory import NodeFactory
-from webapp.factory_protocol.factory.NodeUi import NodeUIFactory
 from webapp.factory_protocol.protocol.NodeUi import NodeUiProtocol
 from webapp.factory_protocol.protocol.node_protocol import NodeProtocol
 from stateRPC import Rpc

@@ -6,7 +6,9 @@
 
 from backend.webapp.onlineProtocol import online
 import xmlrpclib
+from twisted.internet import reactor
 import datetime
+import time
 
 
 class NodeDisPatch:
@@ -45,7 +47,8 @@ class NodeDisPatch:
                 data['schedule'] = 0.0
                 data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 self.work[data['task_id']] = data
-                online.observe['user' + str(data['user_id'])] = list()
+                if not online.observe.get('user' + str(data['user_id'])):
+                    online.observe['user' + str(data['user_id'])] = list()
                 server.add_job(data)
                 return {'status': 200}
             except Exception as e:
@@ -60,5 +63,22 @@ class NodeDisPatch:
                 work.append(self.work[key])
         return work
 
+    def check_task_info(self):
+        for key in self.work.keys():
+            _time = self.work[key]['entry_time']
+            time_list = time.strptime(_time, '%Y-%m-%d %H:%M:%S')
+            total = time.mktime(time_list)
+            cur = int(time.time())
+            if cur - total > 10 and self.work[key]['status'] != "failed":
+                try:
+                    name = online.id_name_map[self.work[key]["node_id"]]
+                    server = xmlrpclib.Server("http://" + online.online_protocol[name].rpc_address)
+                    server.kill_task(key)
+                    self.put_data(self.work[key], self.work[key]['user_id'])
+                except Exception as e:
+                    print e
+        reactor.callLater(1, self.check_task_info)
+
 
 NodeDisPatch = NodeDisPatch()
+reactor.callLater(1, NodeDisPatch.check_task_info)

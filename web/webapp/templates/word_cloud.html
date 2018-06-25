@@ -5,6 +5,14 @@
 <input type="hidden" id="user_id" value="{{current_user.id}}">
 <script src="/static/js/sockjs.min.js"></script>
 <script src="/static/js/updatework.js"></script>
+<style>
+    .line-limit-length {
+        width: 7em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+</style>
 <div class="col-md-8 header-bot-right">
         <form id="user_form" method="post" class="form">
             <div class="form-group">
@@ -47,12 +55,12 @@
         <th>下载词云</th>
     </tr>
     </thead>
-        <tbody style="height: 600px;">
+        <tbody style="height: 600px;" id="task_body">
         {% for work in work_list %}
         <tr id="task{{work['task_id']}}">
             <td>{{work['task_id']}}</td>
-            <td>{{work['url']}}</td>
-            <td>{{work['algorithm']}}</td>
+            <td class="line-limit-length"><a>{{work['url']}}</a></td>
+            <td class="line-limit-length"><a>{{work['algorithm']}}</a></td>
             <td>{{work['number']}}</td>
             <td>{{work['dispersion']}}</td>
             <td>{{work['schedule']}}</td>
