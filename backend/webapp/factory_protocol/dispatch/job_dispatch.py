@@ -6,6 +6,7 @@
 
 from backend.webapp.onlineProtocol import online
 import xmlrpclib
+import json
 from twisted.internet import reactor
 import datetime
 import time
@@ -70,27 +71,46 @@ class NodeDisPatch:
             time_list = time.strptime(_time, '%Y-%m-%d %H:%M:%S')
             total = time.mktime(time_list)
             cur = int(time.time())
+            node_list = online.get_online_protocols("node")
+
             if cur - total > 5 and self.work[key]['status'] != "failed":
                 try:
                     self.work[key]['status'] = "failed"
+                    self.work[key]['ack'] += 1
+                    self.work[key]['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     name = online.id_name_map[self.work[key]["node_id"]]
-                    server = xmlrpclib.Server("http://" + online.online_protocol[name].rpc_address)
-                    server.kill_task(key)
+                    if node_list:
+                        self.work[key]['result'] = "<a>任务超时</a>"
+                        server = xmlrpclib.Server("http://" + online.online_protocol[name].rpc_address)
+                        server.kill_task(key)
+                    else:
+                        self.work[key]['result'] = "<a>no slave</a>"
+                    self.dispatch_info("user" + str(self.work[key]['user_id']), self.work[key])
                 except Exception as e:
                     print e
-            elif self.work[key]['status'] == "failed" and self.work[key]['ack'] < 2:
-                node_list = online.get_online_protocols("node")
-                node = self.get_next_index(node_list) if node_list else None
-                if node:
-                    try:
-                        self.work[key]['ack'] += 1
-                        self.work[key]['node_id'] = node.id
-                        self.work[key]['cur_weight'] = node.cur_weight
-                        server = xmlrpclib.Server("http://" + node.rpc_address)
-                        server.add_job(self.work[key])
-                    except Exception as e:
-                        print e
+            elif self.work[key]['status'] == "failed":
+                if self.work[key]['ack'] < 3:
+                    node = self.get_next_index(node_list) if node_list else None
+                    if node:
+                        try:
+                            self.work[key]['node_id'] = node.id
+                            self.work[key]['cur_weight'] = node.cur_weight
+                            server = xmlrpclib.Server("http://" + node.rpc_address)
+                            server.add_job(self.work[key])
+                        except Exception as e:
+                            print e
+                    else:
+                        self.work[key]['result'] = "<a>no slave</a>"
+                elif self.work[key]['ack'] >= 3:
+                    self.work[key]["result"] = "<a>超过最大重试次数</a>"
+                self.dispatch_info("user" + str(self.work[key]['user_id']), self.work[key])
         reactor.callLater(1, self.check_task_info)
+
+    def dispatch_info(self, user, info):
+        task_list = online.get_online_protocols("task")
+        for task in task_list:
+            if task.div_name == user:
+                task.transport.write(json.dumps(info))
 
 
 NodeDisPatch = NodeDisPatch()
