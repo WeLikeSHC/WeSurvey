@@ -45,6 +45,7 @@ class NodeDisPatch:
                 data['cur_weight'] = node.cur_weight
                 data['status'] = 'work'
                 data['schedule'] = 0.0
+                data['ack'] = 0
                 data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 self.work[data['task_id']] = data
                 if not online.observe.get('user' + str(data['user_id'])):
@@ -69,14 +70,26 @@ class NodeDisPatch:
             time_list = time.strptime(_time, '%Y-%m-%d %H:%M:%S')
             total = time.mktime(time_list)
             cur = int(time.time())
-            if cur - total > 10 and self.work[key]['status'] != "failed":
+            if cur - total > 5 and self.work[key]['status'] != "failed":
                 try:
+                    self.work[key]['status'] = "failed"
                     name = online.id_name_map[self.work[key]["node_id"]]
                     server = xmlrpclib.Server("http://" + online.online_protocol[name].rpc_address)
                     server.kill_task(key)
-                    self.put_data(self.work[key], self.work[key]['user_id'])
                 except Exception as e:
                     print e
+            elif self.work[key]['status'] == "failed" and self.work[key]['ack'] < 2:
+                node_list = online.get_online_protocols("node")
+                node = self.get_next_index(node_list) if node_list else None
+                if node:
+                    try:
+                        self.work[key]['ack'] += 1
+                        self.work[key]['node_id'] = node.id
+                        self.work[key]['cur_weight'] = node.cur_weight
+                        server = xmlrpclib.Server("http://" + node.rpc_address)
+                        server.add_job(self.work[key])
+                    except Exception as e:
+                        print e
         reactor.callLater(1, self.check_task_info)
 
 

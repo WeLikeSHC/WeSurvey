@@ -45,11 +45,11 @@ class CreateConnection(object):
             else:
                 work_status = list()
                 for work in self.instance.work:
-                    if int(work['task_id']) % 2 == 0:
-                        continue
                     work['schedule'] = 0.5
                     work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     work['status'] = 'work'
+                    work['result'] = "<a>正在生成</a>"
+                    work['cur_weight'] = self.instance.cur_weight
                     work_status.append(work)
                 if work_status:
                     self.instance.transport.write(json.dumps(work_status))
@@ -84,6 +84,8 @@ class StateRpc(xmlrpc.XMLRPC):
     """
         提供给web应用的一些相关数据
     """
+    def xmlrpc_get(self):
+        return create_connection.instance.work
 
     def xmlrpc_add_job(self, data):  # 提供的接收任务的接口
         if create_connection.instance:
@@ -108,11 +110,12 @@ class StateRpc(xmlrpc.XMLRPC):
             if work['task_id'] == task_id:
                 work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 work['status'] = 'failed'
+                work['result'] = '<a>生成失败</a>'
+                create_connection.instance.work_num -= 1
                 create_connection.instance.transport.write(json.dumps([work]))
                 create_connection.instance.work.remove(work)
                 return {"status": 200}
-            else:
-                return {"status": 404}
+        return {"status": 404}
 
 
 rpc = StateRpc()
