@@ -2,7 +2,6 @@
 
 from job_dispatch import NodeDisPatch
 import json
-import time
 
 """
 node 结点协议
@@ -47,50 +46,28 @@ schedule 为任务进度
 class TaskDispatch:
 
     def __init__(self):
-        self.error_info = [u"<a>生成失败</a>", u"<a>超过最大重试次数</a>", u"<a>no slave</a>", u"<a>任务超时</a>"]
-        self.normal_info = [u'<a>正在生成</a>']
+        self.error_info = ["<a>Generation failure</a>", "<a>More than the maximum retrial times</a>",
+                           "<a>no slave</a>", "<a>Time out</a>"]
+        self.normal_info = ['<a>Being generated</a>']
+        self.OnlineProtocol = None
 
     def dispatch(self, task):
-        result = self.info_check(task)
-        if not result:
-            NodeDisPatch.work[task.get('task_id')] = task
-            # db.execute_insert('sensor', temp.keys(), [temp[key] for key in temp.keys()])
-            for observe in self.factory.OnlineProtocol.observe.get('user' + task['user_id']):
-                # 观察者模式　发送给所有关注该结点的sockjs
-                observe.transport.write(json.dumps(task))
-        return result
+        result = dict()
 
-    def info_check(self, info):
         try:
-            info = json.loads(info)
-            _time = info['entry_time']
-            time_list = time.strptime(_time, '%Y-%m-%d %H:%M:%S')
-            total = time.mktime(time_list)
-            cur = int(time.time())
-            node_list = self.factory.OnlineProtocol.get_online_protocols("node")
-            task_id = NodeDisPatch.work.get(info.get('task_id'))
+            task = json.loads(task)
+            self.info_check(result)
         except Exception as e:
-            return {"status": 501, "info": str(e)}
+            result['info'] = str(e)
+            return result
 
-        if not task_id:
-            return {"status": 404, "info": "task_id not find"}
+        NodeDisPatch.work[task.get('task_id')] = task
+        for observe in self.OnlineProtocol.observe.get('user' + str(task['user_id'])):
+            # 观察者模式　发送给所有关注该结点的sockjs
+            observe.transport.write(json.dumps(task))
 
-        if cur - total > 20:
-            return {"status": 501, "info": u"时间超时，无效信息! 提交时间为{} , "
-                                           u"更新时间为{}".format(NodeDisPatch.work[task_id['task_id']]['entry_time'], _time)}
-        if info['status'] == "work" and info['result'] not in self.normal_info:
-            return {"status": 501, "info": u"当前状态是 work 但是状态为 {}".format(info['result'])}
-
-        if info['status'] == 'failed' and info['result'] not in self.error_info:
-            return {"status": 501, "info": u"当前状态是 failed 但是状态为 {}".format(info['result'])}
-
-        if info['status'] == "finish" and u"点击下载" not in info['result']:
-            return {"status": 501, "info": u"当前状态是 finish 但是状态为 {}".format(info['result'])}
-
-        if node_list and info['result'] == "<a>no slave</a>":
-            return {"status": 501, "info": u"当前存在结点 但是状态为 {}".format(info['result'])}
-
-        return {}
+    def info_check(self, result):
+        pass
 
 
 TaskDispatch = TaskDispatch()

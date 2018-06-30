@@ -6,6 +6,7 @@ from twisted.internet import reactor
 from twisted.python import log
 import random
 from twisted.web import xmlrpc
+import requests
 import json
 from twisted.web import server
 from twisted.internet import endpoints
@@ -35,6 +36,7 @@ class CreateConnection(object):
             print u"正在重连........................"
             self.instance = None
         else:
+            reactor.callLater(1, CreateConnection.pack_job_info)
             self.instance = Connector.get_online_protocol('ConnectionPlatform')[0]
             self.instance.transport.write(json.dumps(self.pack_data()))
             print u"已发送心跳包....................."
@@ -49,16 +51,22 @@ class CreateConnection(object):
         info['rpc_address'] = "127.0.0.1:5005"
         return info
 
-    # @staticmethod
-    # def pack_job_info():
-    #     data = dict()
-    #     data['task_id'] = self.task_id
-    #     data['node_id'] = node.id
-    #     data['status'] = 'work'
-    #     data['schedule'] = 0.0
-    #     data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #     self.work[data['task_id']] = data
-    #     online.observe['task' + data['task_id']] = list()
+    @staticmethod
+    def pack_job_info():
+        data = dict()
+        data['task_id'] = "0"
+        data['node_id'] = "node0"
+        data['status'] = 'work'
+        data['user_id'] = "1"
+        data['schedule'] = 0.0
+        data['result'] = '<a>Being generated</a>'
+        data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        headers = {'Content-Type': 'application/json'}
+        body = json.dumps(data)
+        url = "http://127.0.0.1:5003/post_data"
+        r = requests.session().post(url, data=body, headers=headers)
+        print r.text
+        # reactor.callLater(1, CreateConnection.pack_job_info)
 
 
 create_connection = CreateConnection('127.0.0.1', 5004)

@@ -83,4 +83,3 @@ class NodeProtocol(Protocol):
     def __str__(self):
         return json.dumps({"last_check": self.last_check,
                            "weight": self.weight, "rpc_address": self.rpc_address, "name": self.name})
-

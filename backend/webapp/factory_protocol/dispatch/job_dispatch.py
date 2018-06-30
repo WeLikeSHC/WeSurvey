@@ -109,16 +109,17 @@ class NodeDisPatch:
                         self.work[key]['result'] = "<a>no slave</a>"
                 elif self.work[key]['ack'] >= 3:
                     self.work[key]["result"] = "<a>超过最大重试次数</a>"
-                self.dispatch_info("user" + str(self.work[key]['user_id']), self.work[key])
+                NodeDisPatch.dispatch_info("user" + str(self.work[key]['user_id']), self.work[key])
 
         reactor.callLater(1, self.check_task_info)
 
-    def dispatch_info(self, user, info):
+    @staticmethod
+    def dispatch_info(user, info):
         task_list = online.get_online_protocols("task")
         for task in task_list:
             if task.div_name == user:
                 task.transport.write(json.dumps(info))
 
 
-# NodeDisPatch = NodeDisPatch()
+NodeDisPatch = NodeDisPatch()
 # reactor.callLater(1, NodeDisPatch.check_task_info)
