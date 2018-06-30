@@ -67,6 +67,8 @@ class ConnectionProtocol(Protocol):
                     print 'not find'
                 elif json_data['status'] == 403:
                     self.connectionLost('node existed !')
+                elif json_data['status'] == 501:
+                    print json_data['info']
                 else:
                     print data['info']
                     self.connectionLost("some thing error")

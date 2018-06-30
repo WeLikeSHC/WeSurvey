@@ -60,6 +60,9 @@ class NodeProtocol(Protocol):
         self.rpc_address = ""
         self.status = False
         self.work_number = 0
+        self.error_info = ["<a>生成失败</a>", "<a>超过最大重试次数</a>", "<a>no slave</a>", "<a>任务超时</a>"]
+        self.normal_info = ['<a>正在生成</a>']
+        self.finish_info = ["<a>点击下载</a>"]
 
     def connectionMade(self):
         pass
@@ -103,7 +106,10 @@ class NodeProtocol(Protocol):
                     """
                      获取当前id 对应的 div_name 若发送结点的id与div_name不搭说明已经id已经被占用 则拒绝连接 返回错误码 403
                      """
-
+                    result = self.info_check(temp)
+                    if result:
+                        self.write(json.dumps(result))
+                        return
                     if NodeDisPatch.work.get(temp.get('task_id')):
                         NodeDisPatch.work[temp.get('task_id')] = temp
                 # db.execute_insert('sensor', temp.keys(), [temp[key] for key in temp.keys()])
@@ -117,15 +123,23 @@ class NodeProtocol(Protocol):
             self.write(json.dumps({"status": 500, "info": str(e)}))
             self.connectionLost(e)
 
-    # def info_check(self, info):
-    #     _time = info['entry_time']
-    #     time_list = time.strptime(_time, '%Y-%m-%d %H:%M:%S')
-    #     total = time.mktime(time_list)
-    #     cur = int(time.time())
-    #     node_list = self.factory.OnlineProtocol.get_online_protocols("node")
-    #     if cur - total > 10:
-    #         return False
-    #     if info['status'] == "work" and info['result'] :
+    def info_check(self, info):
+        _time = info['entry_time']
+        time_list = time.strptime(_time, '%Y-%m-%d %H:%M:%S')
+        total = time.mktime(time_list)
+        cur = int(time.time())
+        node_list = self.factory.OnlineProtocol.get_online_protocols("node")
+        if cur - total > 10:
+            return {"status": 501, "info": "时间超时，无效信息!"}
+        if info['status'] == "work" and info['result'] not in self.normal_info:
+            return {"status": 501, "info": "当前状态是 work 但是状态为".format(info['result'])}
+        if info['status'] == 'failed' and info['result'] not in self.error_info:
+            return {"status": 501, "info": "当前状态是 failed 但是状态为".format(info['result'])}
+        if info['status'] == "finish" and info['result'] not in self.finish_info:
+            return {"status": 501, "info": "当前状态是 finish 但是状态为".format(info['result'])}
+        if node_list and info['result'] == "<a>no slave</a>":
+            return {"status": 501, "info": "当前存在结点 但是状态为".format(info['result'])}
+        return {}
 
     def success(self, info):
         for observe in self.factory.OnlineProtocol.observe.get(self.name):
