@@ -40,20 +40,18 @@ class CreateConnection(object):
             if self.status is False:
                 self.instance = Connector.get_online_protocol('ConnectionPlatform')[0]
                 self.status = True
-                self.instance.transport.write(json.dumps(self.pack_data()))
+                self.instance.transport.write(json.dumps(self.pack_data()) + "#####")
                 print u"已发送采集的到的数据....................."
             else:
-                work_status = list()
                 for work in self.instance.work:
                     work['schedule'] = 0.5
                     work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     work['status'] = 'work'
                     work['result'] = "<a>正在生成</a>"
                     work['cur_weight'] = self.instance.cur_weight
-                    work_status.append(work)
-                if work_status:
-                    self.instance.transport.write(json.dumps(work_status))
+                    self.instance.transport.write(json.dumps(work) + "#####")
         reactor.callLater(1, self.create_long_connection)  # 一直尝试在连接
+
 
     @staticmethod
     def pack_data():

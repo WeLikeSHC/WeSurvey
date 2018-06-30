@@ -21,9 +21,6 @@ class SensorProtocol(Protocol):
         if self.status:
             print 'Sensor Client {} lost, the reason is  {}'.format(self.name, reason)
             self.factory.OnlineProtocol.del_client(self.name)
-            for (key, items) in self.factory.OnlineProtocol.id_name_map.items():
-                if items == self.name:
-                    del self.factory.OnlineProtocol.id_name_map[key]
             self.status = False
         else:
             pass

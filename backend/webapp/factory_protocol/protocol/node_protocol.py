@@ -6,6 +6,7 @@ from ..db_manager.db_operation import db
 from .. dispatch.job_dispatch import NodeDisPatch
 from twisted.internet.defer import Deferred
 import xmlrpclib
+import time
 
 num = 0
 
@@ -63,33 +64,29 @@ class NodeProtocol(Protocol):
     def connectionMade(self):
         pass
 
+    def write(self, data):
+        self.transport.write(data + "#####")
+
     def connectionLost(self, reason=''):
         if self.status:
             print 'Node Client {} lost, the reason is  {}'.format(self.name, reason)
             self.factory.OnlineProtocol.del_client(self.name)
-            for (key, items) in self.factory.OnlineProtocol.id_name_map.items():
-                if items == self.name:
-                    del self.factory.OnlineProtocol.id_name_map[key]
             self.status = False
         else:
             pass
 
-    def dataReceived(self, data):
+    def dataReceived(self, _data):
 
         try:
-            temp = json.loads(data)
-            status = ""
-            if not isinstance(temp, list):
-                status = self.factory.OnlineProtocol.id_name_map.get(temp.get('id'))
-            """
-            获取当前id 对应的 div_name 若发送结点的id与div_name不搭说明已经id已经被占用 则拒绝连接 返回错误码 403
-            """
-
-            if status and status != self.name:
-                    self.transport.write(json.dumps({"status": 403}))
-                    self.connectionLost()
-            else:
+            data_list = _data.split("#####")
+            data_list.remove("")
+            for data in data_list:
+                temp = json.loads(data)
                 if not self.name:  # 如果是第一次连接 设置结点的权重和对应的名称 成功返回 200
+                    status = self.factory.OnlineProtocol.id_name_map.get(temp.get('id'))
+                    if status:
+                        self.write(json.dumps({"status": 403}))
+                        self.connectionLost()
                     global num
                     self.name = 'node' + str(num)
                     num += 1
@@ -100,22 +97,35 @@ class NodeProtocol(Protocol):
                     self.factory.OnlineProtocol.add_client(self.name, self)  # 把该结点放到在线结点中
                     self.status = True
                     self.factory.OnlineProtocol.id_name_map[temp['id']] = self.name  # id 与 名称的映射
-                    self.transport.write(json.dumps({"status": 200}))
+                    self.write(json.dumps({"status": 200}))
                 else:
-                    for info in temp:
-                        if NodeDisPatch.work.get(info.get('task_id')):
-                            NodeDisPatch.work[info.get('task_id')] = info
-                    # db.execute_insert('sensor', temp.keys(), [temp[key] for key in temp.keys()])
-                            for observe in self.factory.OnlineProtocol.observe.get('user' + str(info.get('user_id'))):
-                                # 观察者模式　发送给所有关注该结点的sockjs
-                                observe.transport.write(json.dumps(info))
-                            self.transport.write(json.dumps({"status": 200}))
-                        else:
-                            self.transport.write(json.dumps({"status": 404,
-                                                             "task".format(info.get("task_id")): "failed"}))
+
+                    """
+                     获取当前id 对应的 div_name 若发送结点的id与div_name不搭说明已经id已经被占用 则拒绝连接 返回错误码 403
+                     """
+
+                    if NodeDisPatch.work.get(temp.get('task_id')):
+                        NodeDisPatch.work[temp.get('task_id')] = temp
+                # db.execute_insert('sensor', temp.keys(), [temp[key] for key in temp.keys()])
+                        for observe in self.factory.OnlineProtocol.observe.get('user' + str(temp.get('user_id'))):
+                            # 观察者模式　发送给所有关注该结点的sockjs
+                            observe.transport.write(json.dumps(temp))
+                        self.write(json.dumps({"status": 200}))
+                    else:
+                        self.write(json.dumps({"status": 404, "task".format(temp.get("task_id")): "failed"}))
         except Exception as e:
-            self.transport.write(json.dumps({"status": 500, "info": str(e)}))
+            self.write(json.dumps({"status": 500, "info": str(e)}))
             self.connectionLost(e)
+
+    # def info_check(self, info):
+    #     _time = info['entry_time']
+    #     time_list = time.strptime(_time, '%Y-%m-%d %H:%M:%S')
+    #     total = time.mktime(time_list)
+    #     cur = int(time.time())
+    #     node_list = self.factory.OnlineProtocol.get_online_protocols("node")
+    #     if cur - total > 10:
+    #         return False
+    #     if info['status'] == "work" and info['result'] :
 
     def success(self, info):
         for observe in self.factory.OnlineProtocol.observe.get(self.name):

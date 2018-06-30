@@ -57,16 +57,21 @@ class ConnectionProtocol(Protocol):
     def dataReceived(self, data):
         try:
             print data
-            json_data = json.loads(data)
-            if json_data['status'] == 200:
-                print "success"
-            elif json_data['status'] == 404:
-                print 'not find'
-            elif json_data['status'] == 403:
-                self.connectionLost('node existed !')
-            else:
-                self.connectionLost("some thing error")
+            data_list = data.split("#####")
+            data_list.remove("")
+            for data in data_list:
+                json_data = json.loads(data)
+                if json_data['status'] == 200:
+                    print "success"
+                elif json_data['status'] == 404:
+                    print 'not find'
+                elif json_data['status'] == 403:
+                    self.connectionLost('node existed !')
+                else:
+                    print data['info']
+                    self.connectionLost("some thing error")
         except Exception as e:
+            self.connectionLost()
             print e
 
 
