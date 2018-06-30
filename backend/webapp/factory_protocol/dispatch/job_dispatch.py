@@ -43,7 +43,7 @@ class NodeDisPatch:
                 data['task_id'] = str(self.task_id)
                 self.task_id += 1
                 data['user_id'] = user_id
-                data['node_id'] = node.id
+                data['node_id'] = node.name
                 node.work_number += 1
                 data['cur_weight'] = node.cur_weight
                 data['status'] = 'work'
@@ -74,18 +74,18 @@ class NodeDisPatch:
             total = time.mktime(time_list)
             cur = int(time.time())
             node_list = online.get_online_protocols("node")
-            if cur - total > 5 and self.work[key]['status'] == "work":
+            if cur - total > 20 and self.work[key]['status'] == "work":
                 self.work[key]['status'] = "failed"
                 self.work[key]['ack'] += 1
-                print self.work[key]['ack'], key
+                print "重试次数 {}".format(self.work[key]['ack']), "任务ID {}".format(key), "时间差值 {}".format(cur - total)
                 self.work[key]['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 try:
-                    print cur - total
-                    name = online.id_name_map[self.work[key]["node_id"]]
                     if node_list:
                         self.work[key]['result'] = "<a>任务超时</a>"
-                        server = xmlrpclib.Server("http://" + online.online_protocol[name].rpc_address)
-                        deferToThread(server.kill_task, key)
+                        if online.online_protocol.get(self.work[key]["node_id"]):
+                            server = xmlrpclib.Server("http://" +
+                                                      online.online_protocol[self.work[key]["node_id"]].rpc_address)
+                            deferToThread(server.kill_task, key)
                     else:
                         self.work[key]['result'] = "<a>no slave</a>"
                     self.dispatch_info("user" + str(self.work[key]['user_id']), self.work[key])
@@ -96,8 +96,10 @@ class NodeDisPatch:
                     node = self.get_next_index(node_list) if node_list else None
                     if node:
                         try:
-                            self.work[key]['node_id'] = node.id
+                            self.work[key]['node_id'] = node.name
                             self.work[key]['status'] = 'work'
+                            self.work[key]['result'] = "<a>正在生成</a>"
+                            self.work[key]['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             self.work[key]['cur_weight'] = node.cur_weight
                             server = xmlrpclib.Server("http://" + node.rpc_address)
                             deferToThread(server.add_job, self.work[key])
@@ -118,5 +120,5 @@ class NodeDisPatch:
                 task.transport.write(json.dumps(info))
 
 
-NodeDisPatch = NodeDisPatch()
-reactor.callLater(1, NodeDisPatch.check_task_info)
+# NodeDisPatch = NodeDisPatch()
+# reactor.callLater(1, NodeDisPatch.check_task_info)

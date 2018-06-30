@@ -5,7 +5,6 @@
     <thead>
     <tr>
         <th>结点名称</th>
-        <th>结点ID</th>
         <th>结点RPC地址</th>
         <th>结点权重</th>
         <th>结点状态</th>
@@ -16,7 +15,6 @@
     {% for node in node_list %}
     <tr>
         <td>{{node['name']}}</td>
-        <td>{{node['id']}}</td>
         <td>{{node['rpc_address']}}</td>
         <td>{{node['weight']}}</td>
         <td>Running</td>

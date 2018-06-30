@@ -39,7 +39,6 @@ class CreateConnection(object):
     def pack_data():
 
         info = dict()
-        info["id"] = '1'
         info["entry_time"] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         info["entry_data"] = random.uniform(-10, 50)
         info["info"] = "null"

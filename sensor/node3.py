@@ -36,28 +36,26 @@ class CreateConnection(object):
             print u"正在重连........................"
             self.status = False
             self.instance = None
-        else:
-            if self.status is False:
-                self.instance = Connector.get_online_protocol('ConnectionPlatform')[0]
-                self.status = True
-                self.instance.transport.write(json.dumps(self.pack_data()) + "#####")
-                print u"已发送采集的到的数据....................."
-            else:
-                for work in self.instance.work:
-                    work['schedule'] = 0.5
-                    work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    work['status'] = 'work'
-                    work['result'] = "<a>正在生成</a>"
-                    work['cur_weight'] = self.instance.cur_weight
-                    self.instance.transport.write(json.dumps(work) + "#####")
-        reactor.callLater(1, self.create_long_connection)  # 一直尝试在连接
 
+    def create_long_connection(self):
+
+        """建立长连接"""
+        if not len(Connector.get_online_protocol('ConnectionPlatform')):
+            print u"未连接........................"
+            reactor.connectTCP(self.host, self.port, self.long_connection)
+            print u"正在重连........................"
+            self.instance = None
+        else:
+            self.instance = Connector.get_online_protocol('ConnectionPlatform')[0]
+            self.instance.transport.write(json.dumps(self.pack_data()))
+            print u"已发送采集的到的数据....................."
+
+        reactor.callLater(1, self.create_long_connection)  # 一直尝试在连接
 
     @staticmethod
     def pack_data():
 
         info = dict()
-        info["id"] = '3'
         info['weight'] = 50
         info['rpc_address'] = "127.0.0.1:5007"
         return info

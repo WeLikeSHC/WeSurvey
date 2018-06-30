@@ -7,19 +7,18 @@
 import json
 from twisted.internet.protocol import Protocol
 
-num = 0
-
 
 class NodeUiProtocol(Protocol):
+
+    num = 0
 
     def __init__(self):
         self.name = ""  # 当前实例的名字
         self.div_name = ""  # 观察者对象
 
     def connectionMade(self):
-        global num
-        self.name = 'taskjs' + str(num + 1)
-        num += 1
+        self.name = 'taskjs' + str(NodeUiProtocol.num + 1)
+        NodeUiProtocol.num += 1
         print 'taskjs Client {} Connection '.format(self.name)
         self.factory.OnlineProtocol.add_client(self.name, self)
 
@@ -28,8 +27,9 @@ class NodeUiProtocol(Protocol):
             format(self.name, reason)
         self.factory.OnlineProtocol.del_client(self.name)
         if self.factory.OnlineProtocol.observe.get(self.div_name):
-            print '{} Client has lost a observe {}'.format(self.div_name, self.name)
-            self.factory.OnlineProtocol.observe.get(self.div_name).remove(self)
+            if self in self.factory.OnlineProtocol.observe.get(self.div_name):
+                self.factory.OnlineProtocol.observe.get(self.div_name).remove(self)
+                print '{} Client has lost a observe {}'.format(self.div_name, self.name)
 
     def dataReceived(self, data):
 
@@ -41,5 +41,7 @@ class NodeUiProtocol(Protocol):
                     print '{} Client has append a observe {}'.format(self.div_name, self.name)
             else:
                 self.transport.write(json.dumps({'error': 'not existed!'}))
+                self.transport.loseConnection()
         except Exception as e:
+            self.transport.loseConnection()
             print e

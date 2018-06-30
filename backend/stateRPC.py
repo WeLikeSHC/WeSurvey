@@ -26,7 +26,7 @@ class StateRpc(xmlrpc.XMLRPC):
 
     def xmlrpc_get_online_node(self):
         temp = online.get_online_protocol
-        return [str(temp(key)) for key in online.cache.keys() if key.startswith("node")]
+        return [str(temp(key)) for key in online.online_protocol.keys() if key.startswith("node")]
 
 
 Rpc = StateRpc()

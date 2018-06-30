@@ -18,7 +18,6 @@ class OnlineProtocol(object):
         self.cache = dict()  # 每个传感器的缓存数据
         self.length = 20
         self.observe = dict()  # 每个事件注册的观察者列表
-        self.id_name_map = dict()  # 事件与id的映射
 
     def get_online_protocol(self, div_name):
 
@@ -43,9 +42,7 @@ class OnlineProtocol(object):
 
         # 添加新设备实例->到在线设备列表里 参数为实例和host
         self.online_protocol[div_name] = host
-        self.cache[div_name] = list()
-        self.observe[div_name] = list()
-        print "Add " + div_name + " after, the current equipment is " + str(self.online_protocol)
+        print "Add " + div_name + " after, the current equipment is " + str(self.online_protocol.keys())
         print '\n'
 
     def del_client(self, div_name):
@@ -53,18 +50,13 @@ class OnlineProtocol(object):
         # 从在线设备列表里面删除这个设备
         if self.online_protocol.get(div_name):
             print "You want to delete " + div_name
-            del self.cache[div_name]
-            del self.observe[div_name]
-            if not div_name.startswith("sockjs") and not div_name.startswith("info") \
-                    and not div_name.startswith("taskjs"):
-                del self.id_name_map[self.get_online_protocol(div_name).id]
             del self.online_protocol[div_name]
-            print "Delete " + div_name + " after, the current equipment is " + str(self.online_protocol)
+            print "Delete " + div_name + " after, the current equipment is " + str(self.online_protocol.keys())
         else:
             print "Not Found the div you want to delete!"
 
     def get_node_info(self):
-        handler_list = [self.online_protocol.get(key) for key in self.cache.keys() if key.startswith("node")]
+        handler_list = [self.online_protocol.get(key) for key in self.online_protocol.keys() if key.startswith("node")]
         for handler in handler_list:
             if self.observe.get(handler.name):  # 若该结点添加的存在观察者　则进行信息的查询
             # 上述方式存在问题　会导致图像不连续

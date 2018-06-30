@@ -17,9 +17,9 @@
         <form id="user_form" method="post" class="form">
             <div class="form-group">
                 <label class="control-label">网站地址</label>
-                {{form.url(class="form-control", id="url", required=True, type="url", minlength="3", maxlength="30")}}
+                {{form.url(class="form-control", id="url", required=True, type="url", minlength="3", maxlength="100")}}
             </div>
-
+<!--
             <div class="form-group">
                 <label class="control-label">遍历数量</label>
                 {{form.number(id="number", type="number", min="1", required=True)}}
@@ -35,6 +35,7 @@
                 <select id="algorithm" name="algorithm"><option value="bfs">广度优先搜索</option>
                 <option value="dfs">深度优先搜索</option></select>
             </div>
+            < -->
             <div class="send">
                 {{ form.submit(class="sign-in-button", style="margin-right:50%;width:400px;height:60px;") }}
             </div>

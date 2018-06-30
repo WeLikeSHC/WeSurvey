@@ -10,6 +10,7 @@ from webapp.factory_protocol.protocol.NodeInfoUi import NodeInfoUiProtocol
 from webapp.factory_protocol.factory.NodeFactory import NodeFactory
 from webapp.factory_protocol.protocol.NodeUi import NodeUiProtocol
 from webapp.factory_protocol.protocol.node_protocol import NodeProtocol
+from webapp.factory_protocol.resource.node_info import NodePage
 from stateRPC import Rpc
 from twisted.web import resource, server
 from txsockjs.factory import SockJSResource
@@ -38,8 +39,8 @@ send_work.OnlineProtocol = online
 
 root = resource.Resource()
 
-
 root.putChild('show_data', SockJSResource(send_data))
+root.putChild("push_data", NodePage())
 root.putChild('show_job', SockJSResource(send_work))
 root.putChild('show_js', SockJSResource(send_js))  # 接收js 数据并把结点的状态显示在网页上
 

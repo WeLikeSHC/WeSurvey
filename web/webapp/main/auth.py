@@ -90,6 +90,7 @@ def node_info(_node):
 def node():
     rpc_server = xmlrpclib.Server("http://{}".format(current_app.config['RPC_ADDRESS']))
     node_list = map(lambda x: json.loads(x), rpc_server.get_online_node())
+    print(node_list)
     return render_template("node.html", node_list=node_list)
 
 

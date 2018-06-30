@@ -30,7 +30,8 @@ class CreateConnection(object):
             print u"正在重连........................"
 
         else:
-            Connector.get_online_protocol('ConnectionPlatform')[0].transport.write(json.dumps(self.pack_data()))
+            Connector.get_online_protocol('ConnectionPlatform')[0]. \
+                transport.write(json.dumps(self.pack_data()))
             print u"已发送采集的到的数据....................."
 
         reactor.callLater(1, self.create_long_connection)           # 一直尝试在连接
@@ -45,7 +46,7 @@ class CreateConnection(object):
         info["info"] = "null"
         info['type'] = 'temp'
         info['name'] = 'jian'
-        info['user_id'] = '2'
+        info['user_id'] = '1'
         return info
 
 
