@@ -91,12 +91,14 @@ class StateRpc(xmlrpc.XMLRPC):
             return {"status": 500, "info": "no master"}
 
     def xmlrpc_get_node_info(self):
-        return {"memory_use": random.uniform(0, 1), "memory_total": "15GB", "cpu_use": random.uniform(0, 1), "cpu_total": "8个",
+        temp = {"memory_use": random.uniform(0, 1), "memory_total": "15GB", "cpu_use": random.uniform(0, 1), "cpu_total": "8个",
                 "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 "network_receive": "1.2M/s", "network_launch": "1.2M/s", "disk_use": random.uniform(0, 1),
                 "disk_total": "1000TB",
                 "work_number": create_connection.instance.work_num, "cur_weight": create_connection.instance.cur_weight,
                 "weight": create_connection.instance.weight}
+        print temp
+        return temp
 
     def xmlrpc_kill_task(self, task_id):
         for work in create_connection.instance.work:

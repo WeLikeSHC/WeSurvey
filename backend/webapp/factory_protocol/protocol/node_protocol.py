@@ -61,22 +61,24 @@ class NodeProtocol(Protocol):
         for observe in self.factory.OnlineProtocol.observe.get(self.name):
             # 观察者模式　发送给所有关注该结点的sockjs
             observe.transport.write(json.dumps(info))
-        return "发送结点 {}　信息成功".format(self.name)
 
     def failed(self, info):
-        print "".format(self.name) + str(info)
+        print self.name + " has lost, rpc connect confuse."
 
     def get_node_info(self):
-        rpc_server = xmlrpclib.Server("http://{}".format(self.rpc_address))
-        rpc_info = deferToThread(rpc_server.get_node_info)
-        rpc_info.addCallbacks(self.success, self.failed)
-        rpc_info.addCallbacks(self.failed, self.failed)
+        try:
+            if self.rpc_address:
+                rpc_server = xmlrpclib.Server("http://{}".format(self.rpc_address))
+                rpc_info = deferToThread(rpc_server.get_node_info)
+                rpc_info.addCallbacks(self.success, self.failed)
+        except Exception as e:
+            print str(e)
 
     def check_alive(self):
         time_list = time.strptime(self.last_check, '%Y-%m-%d %H:%M:%S')
         total = time.mktime(time_list)
         cur = int(time.time())
-        if cur - total > 5:
+        if cur - total > 10:
             self.transport.loseConnection()
         reactor.callLater(5, self.check_alive)
 
