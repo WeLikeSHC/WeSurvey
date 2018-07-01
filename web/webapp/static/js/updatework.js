@@ -39,7 +39,7 @@ sock.onmessage = function (e) {
     //
     //     return;
     // }
-    var key = ['task_id', 'url', 'algorithm', 'number', 'dispersion', "ack",
+    var key = ['task_id', 'url', 'algorithm', 'number', "ack",
         'schedule', 'status', 'node_id', 'entry_time', 'result'];
     var trNode = document.getElementById("task" + parse_info['task_id']);
     if (trNode === null) {

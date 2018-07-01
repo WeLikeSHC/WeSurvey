@@ -50,4 +50,4 @@ class NodeInfoUiProtocol(Protocol):
                 self.transport.loseConnection()
         except Exception as e:
             self.transport.loseConnection()
-            print e
+            print e, "node_info_ui lost"

@@ -36,7 +36,7 @@ class CreateConnection(object):
             print u"正在重连........................"
             self.instance = None
         else:
-            reactor.callLater(1, CreateConnection.pack_job_info)
+            reactor.callLater(1, self.pack_job_info)
             self.instance = Connector.get_online_protocol('ConnectionPlatform')[0]
             self.instance.transport.write(json.dumps(self.pack_data()))
             print u"已发送心跳包....................."
@@ -52,20 +52,23 @@ class CreateConnection(object):
         return info
 
     @staticmethod
-    def pack_job_info():
-        data = dict()
-        data['task_id'] = "0"
-        data['node_id'] = "node0"
-        data['status'] = 'work'
-        data['user_id'] = "1"
-        data['schedule'] = 0.0
-        data['result'] = '<a>Being generated</a>'
-        data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    def send_http(data):
         headers = {'Content-Type': 'application/json'}
         body = json.dumps(data)
         url = "http://127.0.0.1:5003/post_data"
         r = requests.session().post(url, data=body, headers=headers)
         print r.text
+
+    def pack_job_info(self):
+        for data in self.instance.work:
+            if data['task_id'] == "0":
+                continue
+            data['status'] = 'work'
+            data['schedule'] = 0.0
+            data['result'] = '<a>Being generated</a>'
+            data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            CreateConnection.send_http(data)
+
         # reactor.callLater(1, CreateConnection.pack_job_info)
 
 
@@ -101,9 +104,9 @@ class StateRpc(xmlrpc.XMLRPC):
             if work['task_id'] == task_id:
                 work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 work['status'] = 'failed'
-                work['result'] = '<a>生成失败</a>'
+                work['result'] = '<a>Generation failure</a>'
                 create_connection.instance.work_num -= 1
-                create_connection.instance.transport.write(json.dumps([work]))
+                create_connection.send_http(work)
                 create_connection.instance.work.remove(work)
                 return {"status": 200}
         return {"status": 404}

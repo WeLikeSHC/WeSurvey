@@ -41,4 +41,4 @@ class SendUiProtocol(Protocol):
                 self.transport.loseConnection()
         except Exception as e:
             self.transport.loseConnection()
-            print e
+            print e, "send_ui_lost"

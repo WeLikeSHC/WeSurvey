@@ -43,7 +43,6 @@ class OnlineProtocol(object):
         # 添加新设备实例->到在线设备列表里 参数为实例和host
         self.online_protocol[div_name] = host
         print "Add " + div_name + " after, the current equipment is " + str(self.online_protocol.keys())
-        print '\n'
 
     def del_client(self, div_name):
 

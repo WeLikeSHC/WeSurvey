@@ -6,6 +6,7 @@ from twisted.internet import reactor
 from twisted.python import log
 import random
 from twisted.web import xmlrpc
+import requests
 import json
 from twisted.web import server
 from twisted.internet import endpoints
@@ -24,7 +25,6 @@ class CreateConnection(object):
         self.long_connection.onlineProtocol = Connector
         self.host = host
         self.port = port
-        self.status = False
         self.instance = None
 
     def create_long_connection(self):
@@ -36,9 +36,10 @@ class CreateConnection(object):
             print u"正在重连........................"
             self.instance = None
         else:
+            reactor.callLater(1, self.pack_job_info)
             self.instance = Connector.get_online_protocol('ConnectionPlatform')[0]
             self.instance.transport.write(json.dumps(self.pack_data()))
-            print u"已发送采集的到的数据....................."
+            print u"已发送心跳包....................."
 
         reactor.callLater(1, self.create_long_connection)  # 一直尝试在连接
 
@@ -47,19 +48,28 @@ class CreateConnection(object):
 
         info = dict()
         info['weight'] = 50
-        info['rpc_address'] = "127.0.0.1:5006"
+        info['rpc_address'] = "127.0.0.1:5005"
         return info
 
-    # @staticmethod
-    # def pack_job_info():
-    #     data = dict()
-    #     data['task_id'] = self.task_id
-    #     data['node_id'] = node.id
-    #     data['status'] = 'work'
-    #     data['schedule'] = 0.0
-    #     data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #     self.work[data['task_id']] = data
-    #     online.observe['task' + data['task_id']] = list()
+    @staticmethod
+    def send_http(data):
+        headers = {'Content-Type': 'application/json'}
+        body = json.dumps(data)
+        url = "http://127.0.0.1:5003/post_data"
+        r = requests.session().post(url, data=body, headers=headers)
+        print r.text
+
+    def pack_job_info(self):
+        for data in self.instance.work:
+            if data['task_id'] == "0":
+                continue
+            data['status'] = 'work'
+            data['schedule'] = 0.0
+            data['result'] = '<a>Being generated</a>'
+            data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            CreateConnection.send_http(data)
+
+        # reactor.callLater(1, CreateConnection.pack_job_info)
 
 
 create_connection = CreateConnection('127.0.0.1', 5004)
@@ -70,8 +80,6 @@ class StateRpc(xmlrpc.XMLRPC):
     """
         提供给web应用的一些相关数据
     """
-    def xmlrpc_get(self):
-        return create_connection.instance.work
 
     def xmlrpc_add_job(self, data):  # 提供的接收任务的接口
         if create_connection.instance:
@@ -96,9 +104,9 @@ class StateRpc(xmlrpc.XMLRPC):
             if work['task_id'] == task_id:
                 work['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 work['status'] = 'failed'
-                work['result'] = '<a>生成失败</a>'
+                work['result'] = '<a>Generation failure</a>'
                 create_connection.instance.work_num -= 1
-                create_connection.instance.transport.write(json.dumps([work]))
+                create_connection.send_http(work)
                 create_connection.instance.work.remove(work)
                 return {"status": 200}
         return {"status": 404}
