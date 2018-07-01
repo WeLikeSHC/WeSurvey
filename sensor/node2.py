@@ -48,7 +48,7 @@ class CreateConnection(object):
 
         info = dict()
         info['weight'] = 50
-        info['rpc_address'] = "127.0.0.1:5005"
+        info['rpc_address'] = "127.0.0.1:5006"
         return info
 
     @staticmethod
@@ -61,12 +61,11 @@ class CreateConnection(object):
 
     def pack_job_info(self):
         for data in self.instance.work:
-            if data['task_id'] == "0":
-                continue
             data['status'] = 'work'
             data['schedule'] = 0.0
             data['result'] = '<a>Being generated</a>'
             data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            print "send http information ..."
             CreateConnection.send_http(data)
 
         # reactor.callLater(1, CreateConnection.pack_job_info)

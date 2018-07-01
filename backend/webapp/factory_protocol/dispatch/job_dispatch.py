@@ -46,27 +46,32 @@ class NodeDisPatch:
         node_list[index].cur_weight -= total
         return node_list[index]
 
-    def add_job(self, data, user_id):
+    def add_job(self, data, user_id, overflow=False):
 
         """
-        添加任务任务,　并初始化观察者队列
+        添加任务，若任务已经存在则可以覆盖掉之前的任务，重新运行
         :param data:
         :param user_id:
+        :param overflow:
         :return:
         """
 
         result = {"status": 200}
         try:
             node = self.next_node
-            data['task_id'] = str(self.task_id)
-            self.task_id += 1
+            if not overflow:
+                data['task_id'] = str(self.task_id)
+                self.task_id += 1
+                data['ack'] = 0
+            else:
+                data['ack'] += 1
+
             data['user_id'] = user_id
             data['node_id'] = node.name
             node.work_number += 1
             data['cur_weight'] = node.cur_weight
             data['status'] = 'work'
             data['schedule'] = 0.0
-            data['ack'] = 0
             data['entry_time'] = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             self.work[data['task_id']] = data
             if not online.observe.get('user' + str(data['user_id'])):
@@ -78,16 +83,17 @@ class NodeDisPatch:
             result['info'] = str(e)
         return result
 
-    def put_data(self, data, user_id):
+    def put_data(self, data, user_id, overflow=False):
 
         """
         分配任务
         :param data:
         :param user_id:
+        :param overflow:
         :return:
         """
 
-        return self.add_job(data, user_id)
+        return self.add_job(data, user_id, overflow)
 
     def get_work_info(self, user_id):
 
@@ -107,7 +113,7 @@ class NodeDisPatch:
         for key in self.keys:
             total = NodeDisPatch.get_task_time_stamp(self.work[key])
             cur = NodeDisPatch.get_cur_time_stamp()
-            if cur - total > 1:
+            if cur - total > 5:
                 self.work[key]['status'] = 'failed'
                 self.work[key]['result'] = "<a>Time out</a>"
                 NodeDisPatch.dispatch_info("user" + str(self.work[key]['user_id']), self.work[key])
@@ -118,7 +124,8 @@ class NodeDisPatch:
                     d.addCallbacks(self.success, self.failed, callbackKeywords=(self.work[key]))  # 分发任务并更新任务
                     d.addCallbacks(self.failed, self.failed)
                 except Exception as e:
-                    print e, "connect rpc server failed"
+                    self.put_data(self.work[key], self.work[key]['user_id'], overflow=True)
+                    print e, "connect rpc server failed, try run task on other node."
             else:
                 pass
             NodeDisPatch.dispatch_info("user" + str(self.work[key]['user_id']), self.work[key])
