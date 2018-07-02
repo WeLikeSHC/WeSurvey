@@ -4,13 +4,14 @@ from init_pro import ConnectionFactory, ConnectionProtocol, Connector
 import sys
 from twisted.internet import reactor
 from twisted.python import log
-import random
 from twisted.web import xmlrpc
 import requests
 import json
+from twisted.internet.threads import deferToThread
 from twisted.web import server
 from twisted.internet import endpoints
 import datetime
+from node_info import Monitor
 
 log.startLogging(sys.stdout)
 
@@ -91,14 +92,13 @@ class StateRpc(xmlrpc.XMLRPC):
             return {"status": 500, "info": "no master"}
 
     def xmlrpc_get_node_info(self):
-        temp = {"memory_use": random.uniform(0, 1), "memory_total": "15GB", "cpu_use": random.uniform(0, 1), "cpu_total": "8个",
+        return {"memory_use": Monitor['memory_use'], "memory_total": Monitor['memory_total'],
+                "cpu_use": Monitor['cpu_use'], "cpu_total": Monitor['cpu_total'],
                 "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                "network_receive": "1.2M/s", "network_launch": "1.2M/s", "disk_use": random.uniform(0, 1),
-                "disk_total": "1000TB",
-                "work_number": create_connection.instance.work_num, "cur_weight": create_connection.instance.cur_weight,
+                "network_receive": Monitor['network_receive'], "network_launch": Monitor['network_launch'],
+                "disk_use": Monitor['disk_use'], "disk_total": Monitor['disk_total'],
+                "work_number": len(create_connection.instance.work), "cur_weight": create_connection.instance.cur_weight,
                 "weight": create_connection.instance.weight}
-        print temp
-        return temp
 
     def xmlrpc_kill_task(self, task_id):
         for work in create_connection.instance.work:
@@ -113,8 +113,19 @@ class StateRpc(xmlrpc.XMLRPC):
         return {"status": 404}
 
 
+def print_info(*args, **kwargs):
+    if args or kwargs:
+        print args, kwargs
+
+
+def update_info():
+    d = deferToThread(Monitor.monitor_host)
+    d.addCallbacks(print_info, print_info)
+    reactor.callLater(1, update_info)
+
+
 rpc = StateRpc()
 rpc_point = endpoints.TCP4ServerEndpoint(reactor, 5006)
 rpc_point.listen(server.Site(rpc))  # 把资源和对应的端口进行绑定
-
+reactor.callLater(1, update_info)
 reactor.run()

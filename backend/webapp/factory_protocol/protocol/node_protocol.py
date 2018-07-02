@@ -50,27 +50,19 @@ class NodeProtocol(Protocol):
             self.transport.write(json.dumps({"status": 500, "info": str(e)}))
             self.transport.loseConnection()
 
-    def success(self, info):
-
-        info['name'] = self.name
-        if self.factory.OnlineProtocol.cache.get(self.name) and \
-                len(self.factory.OnlineProtocol.cache.get(self.name)) == self.factory.OnlineProtocol.length:
-            self.factory.OnlineProtocol.cache.get(self.name).pop(0)
-
-        self.factory.OnlineProtocol.cache.get(self.name).append(info)
-        for observe in self.factory.OnlineProtocol.observe.get(self.name):
-            # 观察者模式　发送给所有关注该结点的sockjs
-            observe.transport.write(json.dumps(info))
-
-    def failed(self, info):
-        print self.name + " has lost, rpc connect confuse."
-
     def get_node_info(self):
         try:
-            if self.rpc_address:
-                rpc_server = xmlrpclib.Server("http://{}".format(self.rpc_address))
-                rpc_info = deferToThread(rpc_server.get_node_info)
-                rpc_info.addCallbacks(self.success, self.failed)
+            rpc_server = xmlrpclib.Server("http://{}".format(self.rpc_address))
+            rpc_info = rpc_server.get_node_info()
+            rpc_info['name'] = self.name
+            if self.factory.OnlineProtocol.cache.get(self.name) and \
+                    len(self.factory.OnlineProtocol.cache.get(self.name)) == self.factory.OnlineProtocol.length:
+                self.factory.OnlineProtocol.cache.get(self.name).pop(0)
+
+            self.factory.OnlineProtocol.cache.get(self.name).append(rpc_info)
+            for observe in self.factory.OnlineProtocol.observe.get(self.name):
+                # 观察者模式　发送给所有关注该结点的sockjs
+                observe.transport.write(json.dumps(rpc_info))
         except Exception as e:
             print str(e)
 

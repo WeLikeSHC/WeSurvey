@@ -57,7 +57,8 @@ class OnlineProtocol(object):
     def get_node_info(self):
         handler_list = [self.online_protocol.get(key) for key in self.online_protocol.keys() if key.startswith("node")]
         for handler in handler_list:
-            handler.get_node_info()
+            if handler.rpc_address:
+                handler.get_node_info()
         reactor.callLater(1, self.get_node_info)
 
 

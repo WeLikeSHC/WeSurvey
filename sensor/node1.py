@@ -4,10 +4,10 @@ from init_pro import ConnectionFactory, ConnectionProtocol, Connector
 import sys
 from twisted.internet import reactor
 from twisted.python import log
-import time
 from twisted.web import xmlrpc
 import requests
 import json
+from twisted.internet.threads import deferToThread
 from twisted.web import server
 from twisted.internet import endpoints
 import datetime
@@ -92,7 +92,6 @@ class StateRpc(xmlrpc.XMLRPC):
             return {"status": 500, "info": "no master"}
 
     def xmlrpc_get_node_info(self):
-        Monitor.monitor_host()
         return {"memory_use": Monitor['memory_use'], "memory_total": Monitor['memory_total'],
                 "cpu_use": Monitor['cpu_use'], "cpu_total": Monitor['cpu_total'],
                 "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -114,8 +113,19 @@ class StateRpc(xmlrpc.XMLRPC):
         return {"status": 404}
 
 
+def print_info(*args, **kwargs):
+    if args or kwargs:
+        print args, kwargs
+
+
+def update_info():
+    d = deferToThread(Monitor.monitor_host)
+    d.addCallbacks(print_info, print_info)
+    reactor.callLater(1, update_info)
+
+
 rpc = StateRpc()
 rpc_point = endpoints.TCP4ServerEndpoint(reactor, 5005)
 rpc_point.listen(server.Site(rpc))  # 把资源和对应的端口进行绑定
-
+reactor.callLater(1, update_info)
 reactor.run()
