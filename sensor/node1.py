@@ -2,18 +2,26 @@
 
 from init_pro import ConnectionFactory, ConnectionProtocol, Connector
 import sys
-from twisted.internet import reactor
 from twisted.python import log
 from twisted.web import xmlrpc
 import requests
 import json
-from twisted.internet.threads import deferToThread
+from twisted.internet import reactor
 from twisted.web import server
 from twisted.internet import endpoints
 import datetime
 from node_info import Monitor
 
 log.startLogging(sys.stdout)
+
+
+def sigInt(*args, **kwargs):
+    print args, kwargs
+    Monitor.status = False
+    reactor.stop()
+
+
+reactor.sigInt = sigInt
 
 
 class CreateConnection(object):
@@ -49,7 +57,7 @@ class CreateConnection(object):
 
         info = dict()
         info['weight'] = 50
-        info['rpc_address'] = "192.168.43.31:5005"
+        info['rpc_address'] = "192.168.1.185:5005"
         return info
 
     @staticmethod

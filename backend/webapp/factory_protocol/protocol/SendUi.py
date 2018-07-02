@@ -38,7 +38,7 @@ class SendUiProtocol(Protocol):
                     self.transport.write(json.dumps(self.factory.OnlineProtocol.cache.get(self.div_name)))
             else:
                 self.transport.write(json.dumps({'error': 'not existed!'}))
-                self.transport.loseConnection()
+                self.connectionLost()
         except Exception as e:
-            self.transport.loseConnection()
+            self.connectionLost()
             print e, "send_ui_lost"

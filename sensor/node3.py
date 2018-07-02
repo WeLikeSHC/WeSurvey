@@ -2,18 +2,26 @@
 
 from init_pro import ConnectionFactory, ConnectionProtocol, Connector
 import sys
-from twisted.internet import reactor
 from twisted.python import log
 from twisted.web import xmlrpc
 import requests
 import json
-from twisted.internet.threads import deferToThread
+from twisted.internet import reactor
 from twisted.web import server
 from twisted.internet import endpoints
 import datetime
 from node_info import Monitor
 
 log.startLogging(sys.stdout)
+
+
+def sigInt(*args, **kwargs):
+    print args, kwargs
+    Monitor.status = False
+    reactor.stop()
+
+
+reactor.sigInt = sigInt
 
 
 class CreateConnection(object):
@@ -49,7 +57,7 @@ class CreateConnection(object):
 
         info = dict()
         info['weight'] = 50
-        info['rpc_address'] = "127.0.0.1:5007"
+        info['rpc_address'] = "192.168.1.185:5007"
         return info
 
     @staticmethod
@@ -118,14 +126,7 @@ def print_info(*args, **kwargs):
         print args, kwargs
 
 
-def update_info():
-    d = deferToThread(Monitor.monitor_host)
-    d.addCallbacks(print_info, print_info)
-    reactor.callLater(1, update_info)
-
-
 rpc = StateRpc()
 rpc_point = endpoints.TCP4ServerEndpoint(reactor, 5007)
 rpc_point.listen(server.Site(rpc))  # 把资源和对应的端口进行绑定
-reactor.callLater(1, update_info)
 reactor.run()

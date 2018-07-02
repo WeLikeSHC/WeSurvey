@@ -52,7 +52,9 @@ class Monitor(object):
         os.system("rm -r -f net.pid")
         os.system("ifstat -i {} > net.pid &".format(get_net_card()))
         self.monitor = dict()
-        self.exector()
+        self.handler = deferToThread(self.update)
+        self.handler.addCallbacks(self.print_info, self.print_info)
+        self.status = True
 
     @staticmethod
     def delete():
@@ -61,13 +63,12 @@ class Monitor(object):
     def print_info(self, *args, **kwargs):
         print args, kwargs
 
-    def exector(self):
-        d = deferToThread(self.update)
-        d.addCallbacks(self.print_info, self.print_info)
-
     def update(self):
-       while True:
-           self. monitor_host()
+        while True:
+            if self.status:
+                self. monitor_host()
+            else:
+                break
 
     def monitor_host(self):
 

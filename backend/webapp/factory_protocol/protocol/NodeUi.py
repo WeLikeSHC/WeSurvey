@@ -41,7 +41,7 @@ class NodeUiProtocol(Protocol):
                     print '{} Client has append a observe {}'.format(self.div_name, self.name)
             else:
                 self.transport.write(json.dumps({'error': 'not existed!'}))
-                self.transport.loseConnection()
+                self.connectionLost()
         except Exception as e:
-            self.transport.loseConnection()
+            self.connectionLost()
             print e, "node_ui_lost"

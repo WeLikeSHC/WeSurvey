@@ -2,7 +2,7 @@
 
 import json
 from twisted.internet.protocol import Protocol
-# from ..db_manager.db_operation import db
+from ..db_manager.db_operation import db
 from twisted.internet import reactor
 import xmlrpclib
 import datetime
@@ -20,6 +20,7 @@ class NodeProtocol(Protocol):
         self.rpc_address = ""
         self.work_number = 0
         self.last_check = ""
+        self.handler = None
 
     def connectionMade(self):
         self.name = 'node' + str(NodeProtocol.num)
@@ -29,13 +30,17 @@ class NodeProtocol(Protocol):
         self.factory.OnlineProtocol.observe[self.name] = list()
         self.factory.OnlineProtocol.cache[self.name] = list()
         self.factory.OnlineProtocol.add_client(self.name, self)  # 把该结点放到在线结点中
-        reactor.callLater(5, self.check_alive)
+        self. handler = reactor.callLater(1, self.check_alive)
 
     def connectionLost(self, reason=''):
         print 'Node Client {} lost, the reason is  {}'.format(self.name, reason)
         self.factory.OnlineProtocol.del_client(self.name)
-        del self.factory.OnlineProtocol.observe[self.name]
-        del self.factory.OnlineProtocol.cache[self.name]
+        if self.factory.OnlineProtocol.observe.get(self.name):
+            del self.factory.OnlineProtocol.observe[self.name]
+        if self.factory.OnlineProtocol.cache.get(self.name):
+            del self.factory.OnlineProtocol.cache[self.name]
+        if not self.handler.called:
+            self.handler.cancel()
 
     def dataReceived(self, data):  # 心跳包
         try:
@@ -46,8 +51,14 @@ class NodeProtocol(Protocol):
             # print u'node Client {} 发送了心跳包,　当前时间为{} '.format(self.name, self.last_check)
             self.transport.write(json.dumps({"status": 200}))
         except Exception as e:
-            self.transport.write(json.dumps({"status": 500, "info": str(e)}))
-            self.transport.loseConnection()
+            self.transport.write(json.dumps({"status": 501, "info": str(e)}))
+            print str(e), data
+
+    @staticmethod
+    def set_time(d):
+        if not d.called:
+            print "get RPC failed"
+            d.cancel()
 
     def success(self, info):
         info['name'] = self.name
@@ -59,7 +70,7 @@ class NodeProtocol(Protocol):
             observe.transport.write(json.dumps(info))
 
     def failed(self, info):
-        print self.name + " has lost, rpc connect confuse."
+        print self.name + " has lost, rpc connect confuse. {}".format(info)
 
     def get_node_info(self):
 
@@ -87,6 +98,7 @@ class NodeProtocol(Protocol):
 
         rpc_server = xmlrpclib.Server("http://{}".format(self.rpc_address))
         rpc_info = deferToThread(rpc_server.get_node_info)
+        reactor.callLater(1, self.set_time, rpc_info)
         rpc_info.addCallbacks(self.success, self.failed)
 
     def check_alive(self):
@@ -94,8 +106,9 @@ class NodeProtocol(Protocol):
         total = time.mktime(time_list)
         cur = int(time.time())
         if cur - total > 10:
-            self.transport.loseConnection()
-        reactor.callLater(5, self.check_alive)
+            self.connectionLost('time out {}'.format(cur - total))
+        else:
+            self.handler = reactor.callLater(1, self.check_alive)
 
     def __str__(self):
         return json.dumps({"last_check": self.last_check,

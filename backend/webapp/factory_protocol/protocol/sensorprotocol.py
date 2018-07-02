@@ -44,5 +44,5 @@ class SensorProtocol(Protocol):
 
         except Exception as e:
             self.transport.write(json.dumps({"status": 500}))
-            self.transport.loseConnection()
+            self.connectionLost()
             print e, "sensor lost"

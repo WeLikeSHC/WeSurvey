@@ -1,6 +1,3 @@
-import socket
-import psutil
+import xmlrpclib
 
-
-if __name__ == '__main__':
-    print get_netcard()
+xmlrpclib.Server("http://{}".format("123123"))
