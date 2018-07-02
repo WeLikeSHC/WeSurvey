@@ -121,7 +121,7 @@ def print_info(*args, **kwargs):
 def update_info():
     d = deferToThread(Monitor.monitor_host)
     d.addCallbacks(print_info, print_info)
-    reactor.callLater(1, update_info)
+
 
 
 rpc = StateRpc()

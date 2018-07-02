@@ -49,7 +49,7 @@ class CreateConnection(object):
 
         info = dict()
         info['weight'] = 50
-        info['rpc_address'] = "127.0.0.1:5005"
+        info['rpc_address'] = "192.168.43.31:5005"
         return info
 
     @staticmethod
@@ -118,14 +118,7 @@ def print_info(*args, **kwargs):
         print args, kwargs
 
 
-def update_info():
-    d = deferToThread(Monitor.monitor_host)
-    d.addCallbacks(print_info, print_info)
-    reactor.callLater(1, update_info)
-
-
 rpc = StateRpc()
 rpc_point = endpoints.TCP4ServerEndpoint(reactor, 5005)
 rpc_point.listen(server.Site(rpc))  # 把资源和对应的端口进行绑定
-reactor.callLater(1, update_info)
 reactor.run()

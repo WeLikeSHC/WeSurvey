@@ -4,6 +4,7 @@ import psutil
 import socket
 import os
 from functools import wraps
+from twisted.internet.threads import deferToThread
 
 
 def monitor_timer(function):
@@ -51,10 +52,22 @@ class Monitor(object):
         os.system("rm -r -f net.pid")
         os.system("ifstat -i {} > net.pid &".format(get_net_card()))
         self.monitor = dict()
+        self.exector()
 
     @staticmethod
     def delete():
         os.system("rm -r -f net.pid && killall ifstat")
+
+    def print_info(self, *args, **kwargs):
+        print args, kwargs
+
+    def exector(self):
+        d = deferToThread(self.update)
+        d.addCallbacks(self.print_info, self.print_info)
+
+    def update(self):
+       while True:
+           self. monitor_host()
 
     def monitor_host(self):
 
