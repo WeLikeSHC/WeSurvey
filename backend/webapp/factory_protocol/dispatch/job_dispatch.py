@@ -113,7 +113,7 @@ class NodeDisPatch:
         for key in self.keys:
             total = NodeDisPatch.get_task_time_stamp(self.work[key])
             cur = NodeDisPatch.get_cur_time_stamp()
-            if cur - total > 5:
+            if cur - total > 5 and self.work[key]['status'] != 'finish':
                 self.work[key]['status'] = 'failed'
                 self.work[key]['result'] = "<a>Time out</a>"
                 NodeDisPatch.dispatch_info("user" + str(self.work[key]['user_id']), self.work[key])

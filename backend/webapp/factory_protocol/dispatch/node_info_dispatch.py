@@ -8,8 +8,7 @@ class TaskDispatch:
 
     def __init__(self):
         self.info_status = {"failed": ["<a>Generation failure</a>", "<a>More than the maximum retrial times</a>",
-                                       "<a>no slave</a>", "<a>Time out</a>"], "work": ['<a>Being generated</a>'],
-                            "finish": ['<a>click to download</a>']}
+                                       "<a>no slave</a>", "<a>Time out</a>"], "work": ['<a>Being generated</a>']}
         self.OnlineProtocol = None
 
     def dispatch(self, task):
@@ -31,17 +30,20 @@ class TaskDispatch:
         if not NodeDisPatch.get(task.get('task_id')):
             raise Exception("task not find!")
 
-        if task['result'] not in self.info_status[task['status']]:
-            raise Exception("you send state is {}, but the result is {}".format(task['status'], task['result']))
-
-        if task['node_id'] != NodeDisPatch[task['task_id']]['node_id']:
-            raise Exception("You have no right to update this task!")
-
         interval = NodeDisPatch.get_task_time_interval(NodeDisPatch[task['task_id']], task)
 
         if interval > 20:
             raise Exception("time out, task submit time is{}, but the current update time is {}".
                             format(NodeDisPatch[task['task_id']]['entry_time'], task['entry_time']))
+
+        if task['node_id'] != NodeDisPatch[task['task_id']]['node_id']:
+            raise Exception("You have no right to update this task!")
+
+        if task['status'] == 'finish':
+            return
+
+        if task['result'] not in self.info_status[task['status']]:
+            raise Exception("you send state is {}, but the result is {}".format(task['status'], task['result']))
 
 
 TaskDispatch = TaskDispatch()
