@@ -40,7 +40,7 @@ thrift-sasl==0.3.0
 thriftpy==0.3.9
 Twisted==18.4.0
 txsockjs==1.2.2
-urllib3==1.22
+urllib3==1.26.5
 Werkzeug==0.14.1
 WTForms==2.1
 zope.interface==4.5.0
